@@ -24,41 +24,51 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, 'web/assets/img/cell-a.jpg')
 OUT = os.path.join(ROOT, 'web/assets/img')
 
-# Кроп кольца: авто-центровка — bbox «ярких+тёплых» пикселей (кольцо),
-# квадрат с запасом; фиксирует смещение кольца внутри текстуры.
-PAD = 6
-
-
-def ring_bbox(px, w, h):
-    xs, ys = [], []
+def ring_center(px, w, h):
+    """Устойчивый центр и радиус кольца: центроид ярких+тёплых точек,
+    две итерации отброса выбросов (декоративные края плиты)."""
+    pts = []
     for y in range(h):
         for x in range(w):
             r, g, b = px[y][x]
             lum = 0.3 * r + 0.6 * g + 0.1 * b
             if lum > 105 and (g - b) > 10:
-                xs.append(x)
-                ys.append(y)
-    if not xs:
+                pts.append((x, y))
+    if not pts:
         raise SystemExit('кольцо не найдено в текстуре')
-    return min(xs), min(ys), max(xs), max(ys)
+    cx = sum(p[0] for p in pts) / len(pts)
+    cy = sum(p[1] for p in pts) / len(pts)
+    for _ in range(2):
+        dists = [math.hypot(x - cx, y - cy) for x, y in pts]
+        dists.sort()
+        med = dists[len(dists) // 2]
+        keep = [(x, y, d) for (x, y), d in zip(pts, dists) if d <= med * 1.6]
+        cx = sum(k[0] for k in keep) / len(keep)
+        cy = sum(k[1] for k in keep) / len(keep)
+        r_max = max(k[2] for k in keep)
+    return cx, cy, r_max
 
 
 def crop_alpha(px, w, h):
-    x0, y0, x1, y1 = ring_bbox(px, w, h)
-    cx, cy = (x0 + x1) // 2, (y0 + y1) // 2
-    half = max(x1 - x0, y1 - y0) // 2 + PAD
-    # не выходить за границы текстуры
-    left = min(max(cx - half, 0), w - 2 * half - 1)
-    top = min(max(cy - half, 0), h - 2 * half - 1)
+    cx, cy, r_max = ring_center(px, w, h)
+    half = int(r_max * 1.12) + 2
+    # кроп обязан помещаться в текстуру: иначе индексы уйдут в минус
+    # и строки завернутся (правый край «приклеивался» слева)
+    half = min(half, (w - 1) // 2, (h - 1) // 2)
+    left = max(0, min(int(cx) - half, w - 2 * half))
+    top = max(0, min(int(cy) - half, h - 2 * half))
+    # центр кольца в координатах кропа — для радиального затвора
+    gx = int(cx) - left + 0.5
+    gy = int(cy) - top + 0.5
     out = []
-    c2 = half  # радиальный затвор: центр кропа, полный до 0.8, ноль на краю
     for yi in range(2 * half):
         row = []
         for xi in range(2 * half):
             x = left + xi
             y = top + yi
-            r = math.hypot(xi - half + 0.5, yi - half + 0.5)
-            gate = clamp01((c2 - r) / (0.25 * c2))   # 1 внутри 0.75R, 0 на R
+            # затвор вокруг ЦЕНТРА КОЛЬЦА, а не центра кропа
+            r = math.hypot(xi - gx, yi - gy)
+            gate = clamp01((half * 0.92 - r) / (0.22 * half))
             r_, g_, b_ = px[y][x]
             lum = 0.3 * r_ + 0.6 * g_ + 0.1 * b_
             warm = g_ - b_
