@@ -1,0 +1,54 @@
+# Публикация игры на GitHub Pages (change: deploy-github-pages, design.md D1-D5).
+# Артефакт-деплой: сайт собирается копированием web/ без web/tests/ и
+# выкладывается actions/deploy-pages. Работает после включения
+# Settings -> Pages -> Source: GitHub Actions (см. README.md).
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Параллельные запуски не складываем в очередь: актуален только последний пуш
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      # upload-pages-artifact публикует каталог целиком — фильтров нет,
+      # поэтому собираем site/ как web/ минус тестовые страницы (design D2)
+      - name: Build site (web/ without tests)
+        run: |
+          mkdir -p site
+          rsync -a web/ site/ --exclude tests
+          test -f site/.nojekyll
+          test -f site/index.html
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
