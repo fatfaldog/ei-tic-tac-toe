@@ -107,20 +107,28 @@ K.UI.init();
 
 const board = $('board');
 assert(board.children.length === 9, 'поле: создано 9 клеток');
-assert(board.children[4].style.left === '164px' && board.children[4].style.top === '158px',
-  'поле: клетка 4 (центр) на (164,158)');
-// клетки одинакового размера 96x94 (крестик влезает целиком)
-assert(board.children.every(c => c.style.width === '96px' && c.style.height === '94px'),
-  'поле: все клетки одинаковые 96x94');
-// точные позиции колонок/строк (с запасом от внутренних линий арта)
-assert(leftsEq(board, 0, [48, 164, 280]), 'поле: колонки на 48/164/280');
-assert(topsEq(board, [43, 158, 278]), 'поле: строки на 43/158/278');
-
-function leftsEq(b, _, xs) { return b.children.every((c, i) => parseInt(c.style.left) === xs[i % 3]); }
-function topsEq(b, ys) { return b.children.every((c, i) => parseInt(c.style.top) === ys[Math.floor(i / 3)]); }
-// зазоры до внутренних полос (148..156, 268..276 X; 139..147, 263..271 Y) положительные
-assert(280 - (268 + 8) >= 4 && 43 + 94 <= 139 - 1,
-  'поле: правая колонка и верхний ряд не задевают внутренние линии');
+assert(board.children[4].style.left === '159px' && board.children[4].style.top === '150px',
+  'поле: клетка 4 (центр) на (159,150)');
+// клетки под промежутки арта, метки одинаковые (текстуры фиксированного размера)
+const EXPECT_X = [47, 159, 278], EXPECT_W = [98, 105, 96];
+const EXPECT_Y = [48, 150, 273], EXPECT_H = [88, 109, 102];
+assert(board.children.every((c, i) => parseInt(c.style.left) === EXPECT_X[i % 3] &&
+  parseInt(c.style.width) === EXPECT_W[i % 3]),
+  'поле: колонки на 47/159/278 шириной 98/105/96');
+assert(board.children.every((c, i) => parseInt(c.style.top) === EXPECT_Y[Math.floor(i / 3)] &&
+  parseInt(c.style.height) === EXPECT_H[Math.floor(i / 3)]),
+  'поле: строки на 48/150/273 высотой 88/109/102');
+// равные зазоры ~3px до внутренних линий (полосы X 148-156, 268-276; Y 139-147, 263-271)
+const disp = v => v * 417 / 418;  // фон рисуется в масштабе 417/418
+const gL1 = 47 - disp(44), gR1 = disp(148) - (47 + 98);
+const gL2 = 159 - disp(156), gR2 = disp(268) - (159 + 105);
+const gL3 = 278 - disp(276);
+const gT1 = 48 - disp(45), gB1 = disp(139) - (48 + 88);
+const gT2 = 150 - disp(147), gB2 = disp(263) - (150 + 109);
+const gT3 = 273 - disp(271), gB3 = disp(379) - (273 + 102);
+const allGaps = [gL1, gR1, gL2, gR2, gL3, gT1, gB1, gT2, gB2, gT3, gB3];
+assert(allGaps.every(g => g > 1.5 && g < 4.5),
+  'поле: зазоры до линий одинаковы (2.6-3.4px): ' + allGaps.map(g => g.toFixed(1)).join(' '));
 
 // ход игрока в центр: клетка получает класс cross, компьютер — nought
 const clickBoard = cellIdx => fire(board, 'click', { target: board.children[cellIdx] });
