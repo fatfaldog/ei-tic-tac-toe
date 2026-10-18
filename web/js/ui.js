@@ -36,10 +36,15 @@
     '          наработок для Переписи ПЗшников в программе'
   ].join('\n');
 
+  /* Тексты исходов — ДОСЛОВНО из оригинального exe (литералы в .data@0x72390,
+   * извлекаются в layout.json -> resultTexts; см. change restore-original-result-texts).
+   * «ПоЗдравляю» — врезанная аббревиатура ПЗ, не опечатка.
+   * Единственная адаптация (design D2): форумный код «:tease:» (колобки Nival)
+   * заменён на UTF-эмодзи-аналог 😜. */
   var RESULT_TEXTS = {
-    playerWon: 'Вы победили!',
-    computerWon: 'Компьютер победил',
-    draw: 'Ничья'
+    playerWon: 'Вы выиграли. ПоЗдравляю!!!!!',
+    computerWon: 'Комп вас уделал \u{1F61C}',
+    draw: 'Ничья!!!!'
   };
 
   var UI = NS.UI = {};
@@ -453,6 +458,8 @@
     game.newGame(); // события сами перерисуют поле
     setContext('board');
   }
+
+  UI.RESULT_TEXTS = RESULT_TEXTS;  // доступ для тестов
 
   UI.init = function () {
     game = new NS.Game(NS.AI);

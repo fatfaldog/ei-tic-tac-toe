@@ -265,8 +265,45 @@ def group_to_cur(group_data, member_by_id):
     return group_data[:6] + b''.join(entries) + b''.join(datas)
 
 
-IMG_NAMES = {
-    ('TFORM1', 'Image1'): 'main-bg.jpg',
+def extract_result_texts(blob):
+    """Оригинальные тексты исходов партии: cp1251-литералы PChar в .data
+    (найдены по смещению 0x723e4; в первой разведке пропущены — скан обрывался
+    по счётчику). Урок: не обрывать скан, фильтровать мусор содержательными
+    маркерами; страховка — прямой поиск байтового паттерна ':tease:' (D1).
+    Возвращает {playerWon, computerWon, draw, sourceOffset} или None."""
+    import re
+    found = []
+    for m in re.finditer(rb'[ -~\xC0-\xFF\xA8\xB8]{8,}', blob):
+        try:
+            s = m.group().decode('cp1251')
+        except UnicodeDecodeError:
+            continue
+        low = s.lower()
+        if ('выиграл' in low or 'ичья' in low or 'уделал' in low) and \
+                sum(1 for c in s if 'а' <= c <= 'я' or 'А' <= c <= 'Я') >= 4:
+            found.append((m.start(), s))
+    if not found and b':tease:' not in blob:
+        return None  # тексты не найдены — пайплайн не падает (design D1)
+    uniq = []
+    for off, s in found:
+        if s not in [u[1] for u in uniq]:
+            uniq.append((off, s))
+    out = {}
+    for off, s in uniq:
+        low = s.lower()
+        if 'выиграл' in low:
+            out['playerWon'] = s
+        elif 'уделал' in low:
+            out['computerWon'] = s
+        elif 'ичья' in low:
+            out['draw'] = s
+    if len(out) < 3:
+        return None
+    out['sourceOffset'] = hex(uniq[0][0])
+    return out
+
+
+IMG_NAMES = {    ('TFORM1', 'Image1'): 'main-bg.jpg',
     ('TFORM1', 'Image2'): 'cell-a-1.jpg', ('TFORM1', 'Image3'): 'cell-a-2.jpg',
     ('TFORM1', 'Image4'): 'cell-a-3.jpg', ('TFORM1', 'Image5'): 'cell-a-4.jpg',
     ('TFORM1', 'Image6'): 'cell-a-5.jpg', ('TFORM1', 'Image7'): 'cell-a-6.jpg',
@@ -380,6 +417,9 @@ def main():
                           'rect': [p.get('Left'), p.get('Top'),
                                    p.get('Width'), p.get('Height')]})
     layout['mainCells'] = cells
+
+    # --- оригинальные тексты исходов партии (change restore-original-result-texts)
+    layout['resultTexts'] = extract_result_texts(blob)
 
     json_path = os.path.join(OUT, 'layout.json')
     # Карта состояний клетки -> ассет (исправленная классификация):

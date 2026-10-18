@@ -1089,6 +1089,12 @@
    ]
   }
  ],
+ "resultTexts": {
+  "playerWon": "Вы выиграли. ПоЗдравляю!!!!!",
+  "draw": "Ничья!!!!",
+  "computerWon": "Комп вас уделал :tease:",
+  "sourceOffset": "0x72390"
+ },
  "cellStateMap": {
   "empty": {
    "asset": null,

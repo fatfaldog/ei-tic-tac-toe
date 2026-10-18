@@ -163,8 +163,16 @@ const overlay = $('result-overlay');
 const overlayShown = !overlay.hidden;
 const text = $('result-text').innerHTML;
 assert(overlayShown, 'по завершении партии показан оверлей результата');
-assert(['Вы победили!', 'Компьютер победил', 'Ничья'].indexOf(text) !== -1,
-  'текст результата корректен: ' + JSON.stringify(text));
+// тексты исходов — дословно оригинальные (change restore-original-result-texts)
+assert(K.UI.RESULT_TEXTS.playerWon === 'Вы выиграли. ПоЗдравляю!!!!!',
+  'текст победы игрока дословный (ПоЗдравляю с ПЗ)');
+assert(K.UI.RESULT_TEXTS.computerWon === 'Комп вас уделал \u{1F61C}',
+  'текст поражения: :tease: заменён на эмодзи');
+assert(K.UI.RESULT_TEXTS.draw === 'Ничья!!!!',
+  'текст ничьей дословный');
+assert(text === K.UI.RESULT_TEXTS.computerWon || text === K.UI.RESULT_TEXTS.playerWon ||
+  text === K.UI.RESULT_TEXTS.draw,
+  'оверлей показывает один из оригинальных текстов: ' + JSON.stringify(text));
 
 // «Новая игра» из оверлея: поле очищается, оверлей скрывается
 fire($('result-new-game'), 'click', { target: $('result-new-game') });
