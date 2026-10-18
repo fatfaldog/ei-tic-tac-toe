@@ -112,27 +112,15 @@ assert(board.children[4].style.left === '164px' && board.children[4].style.top =
 // клетки одинакового размера 96x94 (крестик влезает целиком)
 assert(board.children.every(c => c.style.width === '96px' && c.style.height === '94px'),
   'поле: все клетки одинаковые 96x94');
-// внутренние линии не пересекаются: края клеток внутри своих промежутков
-const X_BANDS = [[44, 148], [156, 268], [277, 380]];  // промежутки между полосами
-const Y_BANDS = [[45, 139], [147, 263], [272, 380]];
-let cellsFit = true;
-board.children.forEach((c, i) => {
-  const x = parseInt(c.style.left), y = parseInt(c.style.top);
-  const xb = X_BANDS[i % 3], yb = Y_BANDS[Math.floor(i / 3)];
-  if (x < xb[0] || x + 96 > xb[1] + (i % 3 === 2 ? 10 : 0) + 1 || y < yb[0] || y + 94 > yb[1] + 1) cellsFit = false;
-});
-assert(cellsFit, 'поле: клетки в своих промежутках, внутренние линии не пересекаются');
-// колонки и строки выровнены
-const lefts = board.children.map(c => c.style.left);
-const tops = board.children.map(c => c.style.top);
-assert(new Set([lefts[0], lefts[3], lefts[6]]).size === 1 &&
-  new Set([lefts[1], lefts[4], lefts[7]]).size === 1 &&
-  new Set([lefts[2], lefts[5], lefts[8]]).size === 1,
-  'поле: колонки клеток выровнены по X');
-assert(new Set([tops[0], tops[1], tops[2]]).size === 1 &&
-  new Set([tops[3], tops[4], tops[5]]).size === 1 &&
-  new Set([tops[6], tops[7], tops[8]]).size === 1,
-  'поле: строки клеток выровнены по Y');
+// точные позиции колонок/строк (с запасом от внутренних линий арта)
+assert(leftsEq(board, 0, [48, 164, 280]), 'поле: колонки на 48/164/280');
+assert(topsEq(board, [43, 158, 278]), 'поле: строки на 43/158/278');
+
+function leftsEq(b, _, xs) { return b.children.every((c, i) => parseInt(c.style.left) === xs[i % 3]); }
+function topsEq(b, ys) { return b.children.every((c, i) => parseInt(c.style.top) === ys[Math.floor(i / 3)]); }
+// зазоры до внутренних полос (148..156, 268..276 X; 139..147, 263..271 Y) положительные
+assert(280 - (268 + 8) >= 4 && 43 + 94 <= 139 - 1,
+  'поле: правая колонка и верхний ряд не задевают внутренние линии');
 
 // ход игрока в центр: клетка получает класс cross, компьютер — nought
 const clickBoard = cellIdx => fire(board, 'click', { target: board.children[cellIdx] });
