@@ -107,9 +107,13 @@ K.UI.init();
 
 const board = $('board');
 assert(board.children.length === 9, 'поле: создано 9 клеток');
-assert(board.children[4].style.left === '164px' && board.children[4].style.top === '156px',
-  'поле: клетка 4 (центр) на (164,156) — по центрам клеток фона');
-// все колонки и строки выровнены
+assert(board.children[4].style.left === '156px' && board.children[4].style.top === '147px',
+  'поле: клетка 4 (центр) на (156,147) — по линиям фона');
+assert(board.children[4].style.width === '112px' && board.children[4].style.height === '116px',
+  'поле: размеры клетки 4 = 112x116 (клетки фона асимметричны)');
+assert(board.children[2].style.width === '92px',
+  'поле: правая колонка уже (92px) — как в арте');
+// колонки и строки выровнены между собой
 const lefts = board.children.map(c => c.style.left);
 const tops = board.children.map(c => c.style.top);
 assert(new Set([lefts[0], lefts[3], lefts[6]]).size === 1 &&
@@ -120,6 +124,11 @@ assert(new Set([tops[0], tops[1], tops[2]]).size === 1 &&
   new Set([tops[3], tops[4], tops[5]]).size === 1 &&
   new Set([tops[6], tops[7], tops[8]]).size === 1,
   'поле: строки клеток выровнены по Y');
+// клетки не пересекают разделительные линии (зазор между кнопками >= 8px)
+const gapsX = [156 - (44 + 104), 276 - (156 + 112)];
+const gapsY = [147 - (45 + 94), 271 - (147 + 116)];
+assert(gapsX.every(g => g >= 8) && gapsY.every(g => g >= 8),
+  'поле: между клетками зазор под разделительные линии (>= 8px)');
 
 // ход игрока в центр: клетка получает класс cross, компьютер — nought
 const clickBoard = cellIdx => fire(board, 'click', { target: board.children[cellIdx] });
