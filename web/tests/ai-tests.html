@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Тесты компьютерного оппонента — Крестики-нолики по ПЗшному</title>
+<style>
+  body { font: 14px monospace; margin: 2em; background: #1a1a1a; color: #ddd; }
+  #summary { font-size: 1.2em; font-weight: bold; margin: 1em 0; }
+  .pass { color: #7c7; }
+  .fail { color: #e66; }
+  li { margin: .2em 0; }
+</style>
+</head>
+<body>
+<h1>Тесты компьютерного оппонента (computer-opponent)</h1>
+<p id="summary">выполняются… (перебор всех партий может занять пару секунд)</p>
+<ul id="results"></ul>
+<script src="../tests/harness.js"></script>
+<script src="../js/engine.js"></script>
+<script src="../js/ai.js"></script>
+<script src="../tests/ai-tests.js"></script>
+<script>T.run();</script>
+</body>
+</html>

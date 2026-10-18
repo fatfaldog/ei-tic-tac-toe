@@ -1,0 +1,1107 @@
+{
+ "forms": {
+  "TABOUTAVTOR": {
+   "cls": "TAboutAvtor",
+   "name": "AboutAvtor",
+   "props": {
+    "Left": 305,
+    "Top": 199,
+    "BorderIcons": [
+     "biSystemMenu",
+     "biMinimize"
+    ],
+    "BorderStyle": "bsDialog",
+    "Caption": "Об авторе",
+    "ClientHeight": 384,
+    "ClientWidth": 344,
+    "Color": "clBtnFace",
+    "Font.Charset": "DEFAULT_CHARSET",
+    "Font.Color": "clWindowText",
+    "Font.Height": -11,
+    "Font.Name": "MS Sans Serif",
+    "Font.Style": [],
+    "OldCreateOrder": false,
+    "Scaled": false,
+    "PixelsPerInch": 96,
+    "TextHeight": 13
+   },
+   "children": [
+    {
+     "cls": "TImage",
+     "name": "Image1",
+     "props": {
+      "Left": 0,
+      "Top": 0,
+      "Width": 346,
+      "Height": 365
+     }
+    },
+    {
+     "cls": "TMemo",
+     "name": "Memo1",
+     "props": {
+      "Left": 0,
+      "Top": 256,
+      "Width": 345,
+      "Height": 129,
+      "BevelInner": "bvNone",
+      "BevelOuter": "bvNone",
+      "BiDiMode": "bdRightToLeftReadingOnly",
+      "BorderStyle": "bsNone",
+      "Color": "clNone",
+      "Font.Charset": "DEFAULT_CHARSET",
+      "Font.Color": "clGradientInactiveCaption",
+      "Font.Height": -11,
+      "Font.Name": "MS Sans Serif",
+      "Font.Style": [],
+      "Lines.Strings": [
+       "          Автором данной программы является fatfaldog",
+       "          в некоторых кругах более извесный под ником yurasim",
+       "          участник Проекта: Перепись ПЗшников",
+       "          ищите этот Проект по адресу http://ei-census.eclub.lv/",
+       "",
+       "                            Отдельное спасибо:",
+       "          альфа и бета тестеру под ником PPyatachok",
+       "          а так же ksaont'y за разрешение использования его",
+       "          наработок для Переписи ПЗшников в программе"
+      ],
+      "ParentBiDiMode": false,
+      "ParentFont": false,
+      "ReadOnly": true,
+      "TabOrder": 0
+     }
+    }
+   ]
+  },
+  "TFORM1": {
+   "cls": "TForm1",
+   "name": "Form1",
+   "props": {
+    "Left": 299,
+    "Top": 129,
+    "BiDiMode": "bdLeftToRight",
+    "BorderIcons": [
+     "biSystemMenu",
+     "biMinimize",
+     "biHelp"
+    ],
+    "BorderStyle": "bsSingle",
+    "Caption": "Крестики-нолики",
+    "ClientHeight": 418,
+    "ClientWidth": 417,
+    "Color": "clBtnFace",
+    "Font.Charset": "DEFAULT_CHARSET",
+    "Font.Color": "clWindowText",
+    "Font.Height": -11,
+    "Font.Name": "MS Sans Serif",
+    "Font.Style": [],
+    "Menu": "MainMenu1",
+    "OldCreateOrder": false,
+    "ParentBiDiMode": false,
+    "PixelsPerInch": 96,
+    "TextHeight": 13
+   },
+   "children": [
+    {
+     "cls": "TImage",
+     "name": "Image1",
+     "props": {
+      "Left": 0,
+      "Top": 0,
+      "Width": 418,
+      "Height": 423
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image2",
+     "props": {
+      "Left": 45,
+      "Top": 36,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image3",
+     "props": {
+      "Left": 168,
+      "Top": 32,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image4",
+     "props": {
+      "Left": 278,
+      "Top": 32,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image5",
+     "props": {
+      "Left": 48,
+      "Top": 152,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image6",
+     "props": {
+      "Left": 168,
+      "Top": 152,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image7",
+     "props": {
+      "Left": 280,
+      "Top": 152,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image8",
+     "props": {
+      "Left": 48,
+      "Top": 272,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image9",
+     "props": {
+      "Left": 168,
+      "Top": 272,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image10",
+     "props": {
+      "Left": 280,
+      "Top": 272,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image11",
+     "props": {
+      "Left": 48,
+      "Top": 40,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image12",
+     "props": {
+      "Left": 168,
+      "Top": 40,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image13",
+     "props": {
+      "Left": 280,
+      "Top": 40,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image14",
+     "props": {
+      "Left": 48,
+      "Top": 160,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image15",
+     "props": {
+      "Left": 168,
+      "Top": 160,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image16",
+     "props": {
+      "Left": 280,
+      "Top": 160,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image17",
+     "props": {
+      "Left": 48,
+      "Top": 280,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image18",
+     "props": {
+      "Left": 168,
+      "Top": 280,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image19",
+     "props": {
+      "Left": 280,
+      "Top": 280,
+      "Width": 97,
+      "Height": 97
+     }
+    },
+    {
+     "cls": "TPanel",
+     "name": "Panel1",
+     "props": {
+      "Left": 48,
+      "Top": 40,
+      "Width": 97,
+      "Height": 97,
+      "BevelOuter": "bvNone",
+      "Caption": "Panel1",
+      "Color": "clBtnText",
+      "TabOrder": 0,
+      "OnClick": "Panel1Click"
+     }
+    },
+    {
+     "cls": "TPanel",
+     "name": "Panel2",
+     "props": {
+      "Left": 160,
+      "Top": 40,
+      "Width": 105,
+      "Height": 97,
+      "BevelOuter": "bvNone",
+      "Caption": "Panel2",
+      "Color": "clBtnText",
+      "TabOrder": 1,
+      "OnClick": "Panel2Click"
+     }
+    },
+    {
+     "cls": "TPanel",
+     "name": "Panel3",
+     "props": {
+      "Left": 280,
+      "Top": 40,
+      "Width": 89,
+      "Height": 97,
+      "BevelOuter": "bvNone",
+      "Caption": "Panel3",
+      "Color": "clBtnText",
+      "TabOrder": 2,
+      "OnClick": "Panel3Click"
+     }
+    },
+    {
+     "cls": "TPanel",
+     "name": "Panel4",
+     "props": {
+      "Left": 48,
+      "Top": 152,
+      "Width": 97,
+      "Height": 105,
+      "BevelOuter": "bvNone",
+      "Caption": "Panel4",
+      "Color": "clBtnText",
+      "TabOrder": 3,
+      "OnClick": "Panel4Click"
+     }
+    },
+    {
+     "cls": "TPanel",
+     "name": "Panel5",
+     "props": {
+      "Left": 160,
+      "Top": 152,
+      "Width": 105,
+      "Height": 105,
+      "BevelOuter": "bvNone",
+      "Caption": "Panel5",
+      "Color": "clBtnText",
+      "TabOrder": 4,
+      "OnClick": "Panel5Click"
+     }
+    },
+    {
+     "cls": "TPanel",
+     "name": "Panel6",
+     "props": {
+      "Left": 280,
+      "Top": 152,
+      "Width": 97,
+      "Height": 105,
+      "BevelOuter": "bvNone",
+      "Caption": "Panel6",
+      "Color": "clBtnText",
+      "TabOrder": 5,
+      "OnClick": "Panel6Click"
+     }
+    },
+    {
+     "cls": "TPanel",
+     "name": "Panel7",
+     "props": {
+      "Left": 48,
+      "Top": 272,
+      "Width": 97,
+      "Height": 105,
+      "BevelOuter": "bvNone",
+      "Caption": "Panel7",
+      "Color": "clBtnText",
+      "TabOrder": 6,
+      "OnClick": "Panel7Click"
+     }
+    },
+    {
+     "cls": "TPanel",
+     "name": "Panel8",
+     "props": {
+      "Left": 160,
+      "Top": 272,
+      "Width": 105,
+      "Height": 105,
+      "BevelOuter": "bvNone",
+      "Caption": "Panel8",
+      "Color": "clBtnText",
+      "TabOrder": 7,
+      "OnClick": "Panel8Click"
+     }
+    },
+    {
+     "cls": "TPanel",
+     "name": "Panel9",
+     "props": {
+      "Left": 280,
+      "Top": 272,
+      "Width": 97,
+      "Height": 105,
+      "BevelOuter": "bvNone",
+      "Caption": "Panel9",
+      "Color": "clBtnText",
+      "TabOrder": 8,
+      "OnClick": "Panel9Click"
+     }
+    },
+    {
+     "cls": "TMainMenu",
+     "name": "MainMenu1",
+     "props": {
+      "Left": 632,
+      "Top": 384
+     },
+     "children": [
+      {
+       "cls": "TMenuItem",
+       "name": "Game",
+       "props": {
+        "Caption": "Игра"
+       },
+       "children": [
+        {
+         "cls": "TMenuItem",
+         "name": "NewGame",
+         "props": {
+          "Caption": "Новая игра",
+          "OnClick": "NewGameClick"
+         }
+        },
+        {
+         "cls": "TMenuItem",
+         "name": "Settings",
+         "props": {
+          "Caption": "Настройки",
+          "OnClick": "SettingsClick"
+         }
+        },
+        {
+         "cls": "TMenuItem",
+         "name": "Exit",
+         "props": {
+          "Caption": "Выход",
+          "OnClick": "ExitClick"
+         }
+        }
+       ]
+      },
+      {
+       "cls": "TMenuItem",
+       "name": "Abboutav",
+       "props": {
+        "Caption": "Об авторе",
+        "OnClick": "AbboutavClick"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "TSETTINGSW": {
+   "cls": "TSettingsw",
+   "name": "Settingsw",
+   "props": {
+    "Left": 225,
+    "Top": 168,
+    "BorderIcons": [
+     "biSystemMenu",
+     "biMinimize"
+    ],
+    "BorderStyle": "bsDialog",
+    "Caption": "Настройки",
+    "ClientHeight": 319,
+    "ClientWidth": 341,
+    "Color": "clBtnFace",
+    "Font.Charset": "DEFAULT_CHARSET",
+    "Font.Color": "clWindowText",
+    "Font.Height": -11,
+    "Font.Name": "MS Sans Serif",
+    "Font.Style": [],
+    "OldCreateOrder": false,
+    "PixelsPerInch": 96,
+    "TextHeight": 13
+   },
+   "children": [
+    {
+     "cls": "TImage",
+     "name": "Image1",
+     "props": {
+      "Left": 0,
+      "Top": 0,
+      "Width": 348,
+      "Height": 321,
+      "Center": true
+     }
+    },
+    {
+     "cls": "TImage",
+     "name": "Image2",
+     "props": {
+      "Left": 0,
+      "Top": 0,
+      "Width": 345,
+      "Height": 321
+     }
+    },
+    {
+     "cls": "TLabel",
+     "name": "Label1",
+     "props": {
+      "Left": 104,
+      "Top": 24,
+      "Width": 105,
+      "Height": 13,
+      "Caption": "Уровень сложности:",
+      "Color": "clYellow",
+      "ParentColor": false
+     }
+    },
+    {
+     "cls": "TLabel",
+     "name": "Label2",
+     "props": {
+      "Left": 104,
+      "Top": 152,
+      "Width": 98,
+      "Height": 13,
+      "Caption": "Кто ходит первым?",
+      "Color": "clAqua",
+      "ParentColor": false
+     }
+    },
+    {
+     "cls": "TCheckBox",
+     "name": "CheckBox1",
+     "props": {
+      "Left": 72,
+      "Top": 80,
+      "Width": 65,
+      "Height": 17,
+      "Caption": "Легкий",
+      "Color": "clSkyBlue",
+      "ParentColor": false,
+      "TabOrder": 1,
+      "OnClick": "CheckBox1Click"
+     }
+    },
+    {
+     "cls": "TCheckBox",
+     "name": "CheckBox2",
+     "props": {
+      "Left": 160,
+      "Top": 80,
+      "Width": 81,
+      "Height": 17,
+      "Caption": "Тяжелый",
+      "Color": "clRed",
+      "ParentColor": false,
+      "TabOrder": 0,
+      "OnClick": "CheckBox2Click"
+     }
+    },
+    {
+     "cls": "TCheckBox",
+     "name": "CheckBox3",
+     "props": {
+      "Left": 72,
+      "Top": 216,
+      "Width": 65,
+      "Height": 17,
+      "Caption": "Я",
+      "Color": "clSkyBlue",
+      "ParentColor": false,
+      "TabOrder": 2,
+      "OnClick": "CheckBox3Click"
+     }
+    },
+    {
+     "cls": "TCheckBox",
+     "name": "CheckBox4",
+     "props": {
+      "Left": 168,
+      "Top": 216,
+      "Width": 81,
+      "Height": 17,
+      "Caption": "Комп",
+      "Color": "clRed",
+      "ParentColor": false,
+      "TabOrder": 3,
+      "OnClick": "CheckBox4Click"
+     }
+    }
+   ]
+  }
+ },
+ "images": {
+  "about-bg.jpg": {
+   "form": "TABOUTAVTOR",
+   "component": "Image1",
+   "bytes": 57512
+  },
+  "main-bg.jpg": {
+   "form": "TFORM1",
+   "component": "Image1",
+   "bytes": 81641
+  },
+  "cell-a-1.jpg": {
+   "form": "TFORM1",
+   "component": "Image2",
+   "bytes": 11289
+  },
+  "cell-a-2.jpg": {
+   "form": "TFORM1",
+   "component": "Image3",
+   "bytes": 11289
+  },
+  "cell-a-3.jpg": {
+   "form": "TFORM1",
+   "component": "Image4",
+   "bytes": 11289
+  },
+  "cell-a-4.jpg": {
+   "form": "TFORM1",
+   "component": "Image5",
+   "bytes": 11289
+  },
+  "cell-a-5.jpg": {
+   "form": "TFORM1",
+   "component": "Image6",
+   "bytes": 11289
+  },
+  "cell-a-6.jpg": {
+   "form": "TFORM1",
+   "component": "Image7",
+   "bytes": 11289
+  },
+  "cell-a-7.jpg": {
+   "form": "TFORM1",
+   "component": "Image8",
+   "bytes": 11289
+  },
+  "cell-a-8.jpg": {
+   "form": "TFORM1",
+   "component": "Image9",
+   "bytes": 11289
+  },
+  "cell-a-9.jpg": {
+   "form": "TFORM1",
+   "component": "Image10",
+   "bytes": 11289
+  },
+  "cell-b-1.jpg": {
+   "form": "TFORM1",
+   "component": "Image11",
+   "bytes": 9677
+  },
+  "cell-b-2.jpg": {
+   "form": "TFORM1",
+   "component": "Image12",
+   "bytes": 9677
+  },
+  "cell-b-3.jpg": {
+   "form": "TFORM1",
+   "component": "Image13",
+   "bytes": 9677
+  },
+  "cell-b-4.jpg": {
+   "form": "TFORM1",
+   "component": "Image14",
+   "bytes": 9677
+  },
+  "cell-b-5.jpg": {
+   "form": "TFORM1",
+   "component": "Image15",
+   "bytes": 9677
+  },
+  "cell-b-6.jpg": {
+   "form": "TFORM1",
+   "component": "Image16",
+   "bytes": 9677
+  },
+  "cell-b-7.jpg": {
+   "form": "TFORM1",
+   "component": "Image17",
+   "bytes": 9677
+  },
+  "cell-b-8.jpg": {
+   "form": "TFORM1",
+   "component": "Image18",
+   "bytes": 9677
+  },
+  "cell-b-9.jpg": {
+   "form": "TFORM1",
+   "component": "Image19",
+   "bytes": 9677
+  },
+  "settings-bg-1.jpg": {
+   "form": "TSETTINGSW",
+   "component": "Image1",
+   "bytes": 74199
+  },
+  "settings-bg-2.jpg": {
+   "form": "TSETTINGSW",
+   "component": "Image2",
+   "bytes": 57212
+  }
+ },
+ "cursors": [
+  {
+   "resource": "32761",
+   "width": 32,
+   "height": 32,
+   "hotspotOriginal": [
+    1,
+    1
+   ],
+   "what": "кисть с вытянутым указательным пальцем",
+   "shipped": false
+  },
+  {
+   "resource": "32762",
+   "width": 32,
+   "height": 32,
+   "hotspotOriginal": [
+    1,
+    1
+   ],
+   "what": "песочные часы",
+   "shipped": false
+  },
+  {
+   "resource": "32763",
+   "width": 32,
+   "height": 32,
+   "hotspotOriginal": [
+    1,
+    1
+   ],
+   "what": "стрелочка с кучей листочков под ней",
+   "shipped": false
+  },
+  {
+   "resource": "32764",
+   "width": 32,
+   "height": 32,
+   "hotspotOriginal": [
+    1,
+    1
+   ],
+   "what": "вертикальный-ресайз",
+   "shipped": false
+  },
+  {
+   "resource": "32765",
+   "width": 32,
+   "height": 32,
+   "hotspotOriginal": [
+    1,
+    1
+   ],
+   "what": "горизонтальный-ресайз",
+   "shipped": false
+  },
+  {
+   "resource": "32766",
+   "width": 32,
+   "height": 32,
+   "hotspotOriginal": [
+    1,
+    1
+   ],
+   "what": "стрелочка с одним листочком под ней",
+   "shipped": false
+  },
+  {
+   "resource": "32767",
+   "width": 32,
+   "height": 32,
+   "hotspotOriginal": [
+    1,
+    1
+   ],
+   "what": "перечёркнутый кружок (действие невозможно)",
+   "shipped": false
+  }
+ ],
+ "icon": "icon.ico",
+ "mainCells": [
+  {
+   "cls": "TImage",
+   "name": "Image1",
+   "rect": [
+    0,
+    0,
+    418,
+    423
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image2",
+   "rect": [
+    45,
+    36,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image3",
+   "rect": [
+    168,
+    32,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image4",
+   "rect": [
+    278,
+    32,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image5",
+   "rect": [
+    48,
+    152,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image6",
+   "rect": [
+    168,
+    152,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image7",
+   "rect": [
+    280,
+    152,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image8",
+   "rect": [
+    48,
+    272,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image9",
+   "rect": [
+    168,
+    272,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image10",
+   "rect": [
+    280,
+    272,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image11",
+   "rect": [
+    48,
+    40,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image12",
+   "rect": [
+    168,
+    40,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image13",
+   "rect": [
+    280,
+    40,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image14",
+   "rect": [
+    48,
+    160,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image15",
+   "rect": [
+    168,
+    160,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image16",
+   "rect": [
+    280,
+    160,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image17",
+   "rect": [
+    48,
+    280,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image18",
+   "rect": [
+    168,
+    280,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TImage",
+   "name": "Image19",
+   "rect": [
+    280,
+    280,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TPanel",
+   "name": "Panel1",
+   "rect": [
+    48,
+    40,
+    97,
+    97
+   ]
+  },
+  {
+   "cls": "TPanel",
+   "name": "Panel2",
+   "rect": [
+    160,
+    40,
+    105,
+    97
+   ]
+  },
+  {
+   "cls": "TPanel",
+   "name": "Panel3",
+   "rect": [
+    280,
+    40,
+    89,
+    97
+   ]
+  },
+  {
+   "cls": "TPanel",
+   "name": "Panel4",
+   "rect": [
+    48,
+    152,
+    97,
+    105
+   ]
+  },
+  {
+   "cls": "TPanel",
+   "name": "Panel5",
+   "rect": [
+    160,
+    152,
+    105,
+    105
+   ]
+  },
+  {
+   "cls": "TPanel",
+   "name": "Panel6",
+   "rect": [
+    280,
+    152,
+    97,
+    105
+   ]
+  },
+  {
+   "cls": "TPanel",
+   "name": "Panel7",
+   "rect": [
+    48,
+    272,
+    97,
+    105
+   ]
+  },
+  {
+   "cls": "TPanel",
+   "name": "Panel8",
+   "rect": [
+    160,
+    272,
+    105,
+    105
+   ]
+  },
+  {
+   "cls": "TPanel",
+   "name": "Panel9",
+   "rect": [
+    280,
+    272,
+    97,
+    105
+   ]
+  }
+ ],
+ "cellStateMap": {
+  "empty": {
+   "asset": null,
+   "render": "black-panel",
+   "note": "чёрная TPanel оригинала (clBtnText, bvNone), ассет не нужен"
+  },
+  "cross": {
+   "asset": "img/cell-b-1.jpg",
+   "note": "крестик игрока: все 9 JPEG набора B побайтово одинаковы"
+  },
+  "nought": {
+   "asset": "img/cell-a-1.jpg",
+   "note": "нолик компьютера: все 9 JPEG набора A побайтово одинаковы"
+  }
+ }
+}

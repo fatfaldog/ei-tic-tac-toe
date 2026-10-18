@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Крестики-нолики</title>
+<link rel="icon" href="assets/icon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="scene">
+
+  <!-- Главное окно: клиентская область 417x418 (TFORM1), фон — main-bg.jpg -->
+  <div id="game-window" class="window">
+    <div class="menubar">
+      <div class="menu-item" id="menu-game">
+        Игра
+        <div class="dropdown" id="menu-game-dropdown">
+          <button class="dd-item" id="mi-new-game">Новая игра</button>
+          <button class="dd-item" id="mi-settings">Настройки</button>
+          <div class="dd-sep"></div>
+          <button class="dd-item" id="mi-exit">Выход</button>
+        </div>
+      </div>
+      <div class="menu-item" id="mi-about">Об авторе</div>
+    </div>
+
+    <!-- Игровая область: клиентская область TFORM1 417x418 -->
+    <div class="game-area">
+      <!-- Поле 3x3: клетки 97x97 по координатам TImage (набор A) из layout.json,
+           создаётся скриптом в #board -->
+      <div id="board"></div>
+
+      <!-- Оверлей результата партии (design.md D8) -->
+      <div id="result-overlay" class="overlay" hidden>
+        <div class="panel">
+          <div id="result-text" class="panel-text"></div>
+          <button id="result-new-game" class="stone-btn">Новая игра</button>
+        </div>
+      </div>
+
+      <!-- Прощальный экран пункта «Выход» (design.md D10) -->
+      <div id="farewell" class="overlay" hidden>
+        <div class="panel">
+          <div class="panel-text">Игра завершена.<br>Теперь можно закрыть вкладку.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Окно «Настройки» (TSETTINGSW 341x319, точные координаты из layout.json) -->
+  <div id="settings-modal" class="modal-wrap" hidden>
+    <div class="modal settings" role="dialog" aria-label="Настройки">
+      <div class="modal-close" id="settings-close" title="Закрыть">&#10006;</div>
+      <span class="pz-label" style="left:104px; top:24px;  width:105px; background:#ffff00;">Уровень сложности:</span>
+      <span class="pz-label" style="left:104px; top:152px; width:98px;  background:#00ffff;">Кто ходит первым?</span>
+
+      <label class="pz-check" style="left:72px;  top:80px;  width:65px;">
+        <input type="checkbox" id="cb-easy" checked><span class="box"></span>
+        <span class="cap" style="color:#87ceeb;">Легкий</span>
+      </label>
+      <label class="pz-check" style="left:160px; top:80px;  width:81px;">
+        <input type="checkbox" id="cb-hard"><span class="box"></span>
+        <span class="cap" style="color:#ff0000;">Тяжелый</span>
+      </label>
+      <label class="pz-check" style="left:72px;  top:216px; width:65px;">
+        <input type="checkbox" id="cb-player-first" checked><span class="box"></span>
+        <span class="cap" style="color:#87ceeb;">Я</span>
+      </label>
+      <label class="pz-check" style="left:168px; top:216px; width:81px;">
+        <input type="checkbox" id="cb-computer-first"><span class="box"></span>
+        <span class="cap" style="color:#ff0000;">Комп</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Окно «Об авторе» (TABOUTAVTOR 344x384, текст Memo из layout.json) -->
+  <div id="about-modal" class="modal-wrap" hidden>
+    <div class="modal about" role="dialog" aria-label="Об авторе">
+      <div class="modal-close" id="about-close" title="Закрыть">&#10006;</div>
+      <pre id="about-text" class="about-memo"></pre>
+    </div>
+  </div>
+
+</div>
+<script src="js/engine.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

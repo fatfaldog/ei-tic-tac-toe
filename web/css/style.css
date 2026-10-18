@@ -1,0 +1,305 @@
+/* Крестики-нолики по ПЗшному — стили web-версии.
+ * Все координаты и размеры — из web/assets/layout.json (геометрия форм Delphi,
+ * design.md D5). Основной курсор — стрелка из игры «Проклятые Земли»,
+ * вырезанная из скриншота пользователя (tools/ei_cursor_extract.py, D9).
+ */
+
+/* --------------------------------------------------------------- общее */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: #0a0a08 radial-gradient(ellipse at 50% 30%, #1d1b14 0%, #0a0a08 70%);
+  font-family: Tahoma, "MS Sans Serif", Geneva, Verdana, sans-serif;
+}
+
+.scene {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --------------------------------------------------------- главное окно */
+
+/* Единый курсор игры: стрелка из «Проклятых Земель» (оригинал игры-первоисточника).
+ * Вырезана из скриншота пользователя и уменьшена в 2 раза (20x19),
+ * hot-spot — остриё стрелки. */
+#game-window, .modal-wrap, .panel, .cell, button {
+  cursor: url("../assets/cursors/ei-arrow.png") 3 0, auto;
+}
+
+.window {
+  position: relative;
+  width: 417px;
+  border: 1px solid #3a3220;
+  box-shadow: 0 0 24px rgba(0, 0, 0, .8);
+  overflow: hidden;
+}
+
+/* Игровая область = клиентская область TFORM1 (417x418), фон — main-bg.jpg.
+ * Меню занимает отдельную полосу СВЕРХУ, как MainMenu в заголовке оригинала,
+ * и не перекрывает поле. */
+.game-area {
+  position: relative;
+  width: 417px;              /* ClientWidth TFORM1 */
+  height: 418px;             /* ClientHeight TFORM1 */
+  background: #000 url("../assets/img/main-bg.jpg") center top / 100% auto no-repeat;
+}
+
+/* -------------------------------------------------------------- меню */
+
+.menubar {
+  position: relative;        /* обычная полоса над игровым полем, не поверх */
+  display: flex;
+  align-items: stretch;
+  height: 20px;
+  background: #14110a;
+  border-bottom: 1px solid #2e2a1c;
+  z-index: 30;
+  user-select: none;
+}
+
+.menu-item {
+  position: relative;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  color: #cfc7ab;
+  font-size: 13px;
+}
+
+.menu-item:hover, .menu-item.open {
+  background: #3a3220;
+  color: #ffe9a8;
+}
+
+.dropdown {
+  display: none;
+  position: absolute;
+  top: 100%; left: 0;
+  min-width: 140px;
+  background: #14110a;
+  border: 1px solid #4a4128;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, .7);
+  padding: 2px;
+  z-index: 40;
+}
+
+.menu-item.open .dropdown { display: block; }
+
+.dd-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 5px 14px;
+  color: #cfc7ab;
+  font: inherit;
+  font-size: 13px;
+}
+
+.dd-item:hover { background: #3a3220; color: #ffe9a8; }
+
+.dd-sep {
+  height: 1px;
+  margin: 3px 6px;
+  background: #4a4128;
+}
+
+/* ------------------------------------------------------------ клетки */
+
+#board { position: absolute; inset: 0; }
+
+.cell {
+  position: absolute;
+  width: 97px;               /* Width TImage/TPanel клеток (VCL Stretch) */
+  height: 97px;
+  border: 0;
+  padding: 0;
+  /* пустая клетка — чёрная TPanel оригинала (clBtnText, BevelOuter=bvNone,
+   * OnClick=PanelClick): плоский чёрный квадрат, метка под ним скрыта */
+  background: #000;
+}
+
+.cell:active { filter: brightness(1.15); }
+
+.cell.cross {
+  /* крестик игрока — оригинальная текстура набора B, нативный размер
+   * (в оригинале TImage со Stretch=False). Сдвиг (+2,+3) центрирует
+   * крест: его центр в исходнике (47, 45.5), а не геометрический центр */
+  background: #000 url("../assets/img/cell-b-1.jpg") 2px 3px / 96px 94px no-repeat;
+}
+
+.cell.nought {
+  /* нолик компьютера — оригинальная текстура набора A, нативный размер
+   * 93x112 (без вертикального сжатия 112->97, которое поднимало кольцо).
+   * Сдвиг (-1,-1) центрирует кольцо: его центр в исходнике ~(50, 50) */
+  background: #000 url("../assets/img/cell-a-1.jpg") -1px -1px / 93px 112px no-repeat;
+}
+
+/* ------------------------------------------------------------ оверлеи */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, .55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.overlay[hidden],
+.modal-wrap[hidden] { display: none; }
+
+.panel {
+  min-width: 220px;
+  padding: 22px 28px;
+  text-align: center;
+  background: #14110a;
+  border: 2px solid #4a4128;
+  outline: 1px solid #201b0e;
+  box-shadow: 0 0 18px rgba(0, 0, 0, .8), inset 0 0 24px rgba(0, 0, 0, .6);
+}
+
+.panel-text {
+  color: #e8dcae;
+  font-size: 17px;
+  line-height: 1.4;
+  margin-bottom: 16px;
+  text-shadow: 0 1px 2px #000;
+}
+
+.stone-btn {
+  font: inherit;
+  font-size: 14px;
+  color: #e8dcae;
+  background: #2a2414;
+  border: 1px solid #57492a;
+  outline: 1px solid #17130a;
+  padding: 7px 18px;
+}
+
+.stone-btn:hover { background: #3a3220; color: #ffe9a8; }
+
+/* -------------------------------------------------------- модальные окна */
+
+.modal-wrap {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal { position: relative; border: 1px solid #3a3220; overflow: hidden; }
+
+/* Настройки: TSETTINGSW 341x319; фон — два исходных JPEG друг над другом,
+ * как в DFM (Image2 поверх Image1) */
+.modal.settings {
+  width: 341px;
+  height: 319px;
+  background:
+    url("../assets/img/settings-bg-2.jpg") 0 0 / 345px 321px no-repeat,
+    #000 url("../assets/img/settings-bg-1.jpg") 0 0 / 348px 321px no-repeat;
+}
+
+/* Об авторе: TABOUTAVTOR 344x384 */
+.modal.about {
+  width: 344px;
+  height: 384px;
+  background: #000 url("../assets/img/about-bg.jpg") 0 0 / 100% 100% no-repeat;
+}
+
+.modal-close {
+  position: absolute;
+  top: 4px; right: 6px;
+  z-index: 5;
+  color: #d8c9a3;
+  font-size: 13px;
+  padding: 2px 6px;
+  text-shadow: 0 1px 2px #000;
+}
+
+.modal-close:hover { color: #ffe9a8; }
+
+/* TLabel с непрозрачным цветным фоном, как в VCL (Color = фон подписи) */
+.pz-label {
+  position: absolute;
+  height: 13px;
+  line-height: 13px;
+  font-size: 11px;
+  color: #000;
+  white-space: nowrap;
+}
+
+/* TCheckBox: коробка + подпись исходного цвета */
+.pz-check {
+  position: absolute;
+  height: 17px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  user-select: none;
+}
+
+.pz-check input { display: none; }
+
+.pz-check .box {
+  width: 13px; height: 13px;
+  background: #d8d0c0;
+  border: 1px solid #404040;
+  box-shadow: inset 1px 1px 0 #fff;
+  flex: none;
+}
+
+.pz-check input:checked + .box::after {
+  content: "\2713";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #101010;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.pz-check .cap { text-shadow: 0 1px 1px rgba(0, 0, 0, .6); }
+
+/* TMemo «Об авторе»: прямоугольник 345x129 в позиции (0,256),
+ * текст цвета clGradientInactiveCaption. Шрифт 11px/1.2 — как в оригинале
+ * (Font.Height=-11): все 9 строк Memo помещаются; при отличающихся
+ * системных шрифтах длинные строки переносятся, а блок прокручивается. */
+.about-memo {
+  position: absolute;
+  left: 0; top: 256px;
+  width: 345px; height: 129px;
+  margin: 0;
+  padding: 5px 4px;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, .55);
+  color: #b8d0d8;            /* clGradientInactiveCaption */
+  font: 11px/1.2 Tahoma, "MS Sans Serif", sans-serif;
+  white-space: pre-wrap;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.about-memo::-webkit-scrollbar {
+  width: 10px;
+}
+
+.about-memo::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, .5);
+}
+
+.about-memo::-webkit-scrollbar-thumb {
+  background: #4a4128;
+  border: 1px solid #201b0e;
+}
