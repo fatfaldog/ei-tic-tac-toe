@@ -127,15 +127,15 @@ html, body {
 .cell:active { filter: brightness(1.15); }
 
 .cell.cross {
-  /* крестик игрока — текстура набора B с удалённой чёрной подложкой
-   * (tools/mark_alpha.py), нативный размер 96x94; поправка центра (+1,+2) */
-  background: url("../assets/img/cross-mark.png") calc(50% + 1px) calc(50% + 2px) / 96px 94px no-repeat;
+  /* крестик игрока — оригинальная текстура набора B, нативный размер 96x94
+   * (с собственной чёрной подложкой — как в оригинале игры); поправка (+1,+2) */
+  background: url("../assets/img/cell-b-1.jpg") calc(50% + 1px) calc(50% + 2px) / 96px 94px no-repeat;
 }
 
 .cell.nought {
-  /* нолик компьютера — текстура набора A с удалённой подложкой, 93x112;
+  /* нолик компьютера — оригинальная текстура набора A, 93x112;
    * центр кольца (50,50) в текстуре — поправка (-4,+6) */
-  background: url("../assets/img/nought-mark.png") calc(50% - 4px) calc(50% + 6px) / 93px 112px no-repeat;
+  background: url("../assets/img/cell-a-1.jpg") calc(50% - 4px) calc(50% + 6px) / 93px 112px no-repeat;
 }
 
 /* ----------------------------------------- фокус клетки (game-input) */
@@ -149,13 +149,13 @@ html, body {
               0 0 4px 1px rgba(201, 187, 146, .3);
 }
 
-/* призрак крестика игрока: текстура с подложкой-в-альфу, тот же размер
+/* призрак крестика игрока: та же оригинальная текстура, тот же размер
  * и положение, что у поставленного крестика, полупрозрачно */
 .cell.focused.ghost::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: url("../assets/img/cross-mark.png") calc(50% + 1px) calc(50% + 2px) / 96px 94px no-repeat;
+  background: url("../assets/img/cell-b-1.jpg") calc(50% + 1px) calc(50% + 2px) / 96px 94px no-repeat;
   opacity: .45;
 }
 
