@@ -107,8 +107,8 @@ K.UI.init();
 
 const board = $('board');
 assert(board.children.length === 9, 'поле: создано 9 клеток');
-assert(board.children[4].style.left === '162px' && board.children[4].style.top === '160px',
-  'поле: регулярная сетка, клетка 4 (центр) на (162,160)');
+assert(board.children[4].style.left === '164px' && board.children[4].style.top === '156px',
+  'поле: клетка 4 (центр) на (164,156) — по центрам клеток фона');
 // все колонки и строки выровнены
 const lefts = board.children.map(c => c.style.left);
 const tops = board.children.map(c => c.style.top);
