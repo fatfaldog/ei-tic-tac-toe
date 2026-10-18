@@ -179,30 +179,42 @@ fire($('result-new-game'), 'click', { target: $('result-new-game') });
 const cleared = board.children.every(c => !c.classList.contains('cross') && !c.classList.contains('nought'));
 assert(cleared && overlay.hidden, '«Новая игра» очищает поле и скрывает оверлей');
 
-// настройки: открытие отражает текущие значения
+// настройки (мышь): список, циклы, черновик, OK/X, живое превью существа
 $('mi-settings').click();
 assert(!$('settings-modal').hidden, 'окно «Настройки» открывается');
-assert($('cb-easy').checked && !$('cb-hard').checked, 'умолчание: «Легкий»');
-assert($('cb-player-first').checked && !$('cb-computer-first').checked, 'умолчание: «Я»');
+assert($('settings-frame').classList.contains('easy'), 'фон рамки: кролик при «Легком»');
+assert($('set-val-level').innerHTML === 'Легкий' &&
+  $('set-val-first').innerHTML === 'Я' &&
+  $('set-val-layout').innerHTML === 'Читающая', 'строки показывают текущие значения');
 
-// переключение «Тяжелый» снимает «Легкий» и меняет настройку уровня
-$('cb-hard').checked = true;
-$('cb-hard').change();
-assert(!$('cb-easy').checked, 'пара «Легкий/Тяжелый» взаимоисключающая');
+// клик по строке уровня: цикл + живое превью тролля
+$('set-row-level').click();
+assert($('set-val-level').innerHTML === 'Тяжелый', 'клик по строке циклит значение');
+assert($('settings-frame').classList.contains('hard'), 'превью: тролль при «Тяжелом»');
 
-// переключение «Комп» — первым ходит компьютер в новой партии
-$('cb-computer-first').checked = true;
-$('cb-computer-first').change();
-assert(!$('cb-player-first').checked, 'пара «Я/Комп» взаимоисключающая');
+// крестик: закрыть без применения — уровень не изменился
+$('set-cancel').click();
+assert($('settings-modal').hidden, 'крестик закрывает окно');
+$('mi-settings').click();
+assert($('set-val-level').innerHTML === 'Легкий', 'отмена отбросила черновик');
+assert($('settings-frame').classList.contains('easy'), 'фон вернулся к кролику');
+
+// применить по галочке: Тяжелый + Комп первым + Нумпад
+$('set-row-level').click();            // -> Тяжелый (тролль)
+$('set-row-first').click();            // -> Комп
+$('set-row-layout').click();           // -> Нумпад
+$('set-ok').click();
+assert($('settings-modal').hidden, 'галочка закрывает окно');
 fire($('mi-new-game'), 'click', { target: $('mi-new-game') });
 const noughtsAfter = board.children.filter(c => c.classList.contains('nought')).length;
 assert(noughtsAfter === 1, '«Комп» первым: после «Новой игры» на поле один нолик');
 
-// закрытие настроек
-$('settings-close').click();
-assert($('settings-modal').hidden, 'окно «Настройки» закрывается');
-
-// «Об авторе»: полный текст Memo
+// вернуть умолчания для последующих тестов: Легкий, Я, Читающая
+$('mi-settings').click();
+$('set-row-level').click();            // -> Легкий
+$('set-row-first').click();            // -> Я
+$('set-row-layout').click();           // -> Читающая
+$('set-ok').click();
 $('mi-about').click();
 const layout = JSON.parse(fs.readFileSync(path.join(ROOT, 'web/assets/layout.json'), 'utf8'));
 const aboutNode = layout.forms.TABOUTAVTOR.children.find(c => c.cls === 'TMemo');
@@ -225,9 +237,7 @@ function viewOf(i) {
   return ['focused', 'ghost', 'invalid', 'dim'].filter(k => c.classList.contains(k)).join('+') || '-';
 }
 
-// подготовка: вернуть «Я» первым (выше включали «Комп»)
-$('cb-player-first').checked = true;
-$('cb-player-first').change();
+// подготовка не нужна: умолчания (Легкий, Я, Читающая) восстановлены выше
 
 // меню с клавиатуры: F10 открывает, первый пункт подсвечен
 key('F10');
@@ -266,24 +276,38 @@ key('Enter');
 assert(board.children.map(c => c.className).join('|') === frozen,
   'клавиатура: Enter на занятой клетке игнорируется');
 
-// настройки с клавиатуры: F10, вниз, Enter -> окно; навигация к «Нумпад», Space
+// настройки с клавиатуры: F10, вниз, Enter -> окно; навигация строками и плитами
 key('F10');
 key('ArrowDown');      // mi-settings
 key('Enter');
 assert(!$('settings-modal').hidden, 'клавиатура: меню -> «Настройки» открываются');
-assert($('cb-easy').classList.contains('kbd-active'), 'клавиатура: первый чекбокс подсвечен');
+assert($('set-row-level').classList.contains('kbd-active'), 'клавиатура: первая строка подсвечена');
 assert(viewOf(2) === 'focused+dim', 'фокус: при открытом окне подсветка клетки тускнеет');
-key('ArrowDown'); key('ArrowDown'); key('ArrowRight'); // сетка 2x3 -> cb-numpad
-assert($('cb-numpad').classList.contains('kbd-active'), 'клавиатура: навигация по чекбоксам');
-key('Space');
-assert($('cb-numpad').checked && !$('cb-reading').checked,
-  'клавиатура: Space переключает пару раскладок');
+// цикл уровня с клавиатуры + живое превью тролля
+key('Enter');
+assert($('set-val-level').innerHTML === 'Тяжелый' && $('settings-frame').classList.contains('hard'),
+  'клавиатура: Enter циклит уровень, превью — тролль');
+// вниз до строки раскладки, цикл на «Нумпад»
+key('ArrowDown'); key('ArrowDown');   // -> set-row-layout
+assert($('set-row-layout').classList.contains('kbd-active'), 'клавиатура: навигация по строкам');
+key('Space');                          // CONFIRM циклит
+assert($('set-val-layout').innerHTML === 'Нумпад', 'клавиатура: Space циклит раскладку');
+// Esc — отмена: черновик отброшен
 key('Escape');
 assert($('settings-modal').hidden, 'клавиатура: Esc закрывает настройки');
+$('mi-settings').click();
+assert($('set-val-layout').innerHTML === 'Читающая' && $('set-val-level').innerHTML === 'Легкий',
+  'клавиатура: Esc отбросил изменения');
+// применить «Нумпад» через плиту OK с клавиатуры
+key('ArrowDown'); key('ArrowDown'); key('Space');            // цикл раскладки -> Нумпад
+key('ArrowDown');                                            // -> плита OK (позиция 3)
+assert($('set-ok').classList.contains('kbd-active'), 'клавиатура: фокус дошёл до плиты OK');
+key('Enter');
+assert($('settings-modal').hidden, 'клавиатура: Enter на плите OK применяет и закрывает');
 
-// нумпадовая раскладка действует немедленно: 7 -> верхняя левая
+// нумпадовая раскладка действует после OK: 7 -> верхняя левая
 key('Digit7');
-assert(viewOf(0) === 'focused+ghost', 'раскладка: после «Нумпад» цифра 7 -> клетка 0');
+assert(viewOf(0) === 'focused+ghost', 'раскладка: после OK «Нумпад» цифра 7 -> клетка 0');
 key('Enter');
 
 // результат партии: доигрываем кликами, Enter = «Новая игра»

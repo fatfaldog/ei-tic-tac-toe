@@ -279,79 +279,83 @@
 
   /* ------------------------------------------------------- настройки */
 
-  var CHECK_IDS = ['cb-easy', 'cb-hard', 'cb-player-first', 'cb-computer-first',
-    'cb-reading', 'cb-numpad'];
-  var checkIndex = 0; // сетка 2x3: строка = idx/2, колонка = idx%2
+  /* Диалог-список с черновиком (change redesign-settings-window):
+   * открытие копирует настройки; циклы меняют черновик (и фон-существо рамки —
+   * живое превью); плита галочки применяет, крестик/Esc/B отбрасывают. */
+  var SETTING_KEYS = ['level', 'first', 'digitLayout'];
+  var SETTING_LABELS = {
+    level: { easy: 'Легкий', hard: 'Тяжелый' },
+    first: { player: 'Я', computer: 'Комп' },
+    digitLayout: { reading: 'Читающая', numpad: 'Нумпад' }
+  };
+  var SETTING_VALUE_IDS = { level: 'set-val-level', first: 'set-val-first', digitLayout: 'set-val-layout' };
+  var SETTING_ROW_IDS = ['set-row-level', 'set-row-first', 'set-row-layout'];
+  var settingsDraft = null;
+  var settingsPos = 0;   // 0..2 — строки, 3 — плита OK, 4 — плита X
 
-  function fireChange(el) {
-    if (typeof el.dispatchEvent === 'function') {
-      el.dispatchEvent(new global.Event('change'));
-    } else if (typeof el.change === 'function') {
-      el.change();
+  function renderSettings() {
+    if (!settingsDraft) {
+      return;
     }
+    for (var i = 0; i < SETTING_KEYS.length; i++) {
+      $(SETTING_VALUE_IDS[SETTING_KEYS[i]]).innerHTML =
+        SETTING_LABELS[SETTING_KEYS[i]][settingsDraft[SETTING_KEYS[i]]];
+    }
+    var frame = $('settings-frame');
+    frame.classList.remove('easy', 'hard');
+    frame.classList.add(settingsDraft.level === 'hard' ? 'hard' : 'easy');
+    for (var r = 0; r < SETTING_ROW_IDS.length; r++) {
+      $(SETTING_ROW_IDS[r]).classList.remove('kbd-active');
+      if (settingsPos === r) { $(SETTING_ROW_IDS[r]).classList.add('kbd-active'); }
+    }
+    $('set-ok').classList.remove('kbd-active');
+    $('set-cancel').classList.remove('kbd-active');
+    if (settingsPos === 3) { $('set-ok').classList.add('kbd-active'); }
+    if (settingsPos === 4) { $('set-cancel').classList.add('kbd-active'); }
   }
 
-  function renderCheckSel() {
-    for (var i = 0; i < CHECK_IDS.length; i++) {
-      $(CHECK_IDS[i]).classList.remove('kbd-active');
-      if (i === checkIndex) {
-        $(CHECK_IDS[i]).classList.add('kbd-active');
-      }
+  function cycleSetting(key) {
+    var d = settingsDraft;
+    if (key === 'level') { d.level = d.level === 'easy' ? 'hard' : 'easy'; }
+    if (key === 'first') { d.first = d.first === 'player' ? 'computer' : 'player'; }
+    if (key === 'digitLayout') {
+      d.digitLayout = d.digitLayout === 'reading' ? 'numpad' : 'reading';
     }
-  }
-
-  function moveCheckSel(action) {
-    var col = checkIndex % 2, row = Math.floor(checkIndex / 2);
-    if (action === 'LEFT' && col > 0) { col--; }
-    if (action === 'RIGHT' && col < 1) { col++; }
-    if (action === 'UP' && row > 0) { row--; }
-    if (action === 'DOWN' && row < 2) { row++; }
-    checkIndex = row * 2 + col;
-    renderCheckSel();
+    renderSettings();
   }
 
   function openSettings() {
-    // отражаем действующие настройки в чекбоксах
-    $('cb-easy').checked = game.settings.level === 'easy';
-    $('cb-hard').checked = game.settings.level === 'hard';
-    $('cb-player-first').checked = game.settings.first === 'player';
-    $('cb-computer-first').checked = game.settings.first === 'computer';
-    $('cb-reading').checked = game.settings.digitLayout === 'reading';
-    $('cb-numpad').checked = game.settings.digitLayout === 'numpad';
+    settingsDraft = {
+      level: game.settings.level,
+      first: game.settings.first,
+      digitLayout: game.settings.digitLayout
+    };
+    settingsPos = 0;
     $('settings-modal').hidden = false;
-    checkIndex = 0;
     setContext('settings');
-    renderCheckSel();
+    renderSettings();
   }
 
   function closeSettings() {
     $('settings-modal').hidden = true;
+    settingsDraft = null;
     setContext('board');
   }
 
+  function applySettingsOk() {
+    game.applySettings(settingsDraft); // уровень/первый ход — к следующей партии,
+    closeSettings();                   // раскладка — немедленно (applySettings)
+  }
+
   function initSettings() {
-    // пары взаимоисключающих чекбоксов, как TCheckBox в оригинале
-    function pair(aId, bId, onPick) {
-      var a = $(aId), b = $(bId);
-      a.addEventListener('change', function () {
-        if (a.checked) { b.checked = false; } else { a.checked = true; }
-        onPick();
+    SETTING_ROW_IDS.forEach(function (rowId, i) {
+      $(rowId).addEventListener('click', function () {
+        settingsPos = i;
+        cycleSetting(SETTING_KEYS[i]);
       });
-      b.addEventListener('change', function () {
-        if (b.checked) { a.checked = false; } else { b.checked = true; }
-        onPick();
-      });
-    }
-    pair('cb-easy', 'cb-hard', function () {
-      game.applySettings({ level: $('cb-hard').checked ? 'hard' : 'easy' });
     });
-    pair('cb-player-first', 'cb-computer-first', function () {
-      game.applySettings({ first: $('cb-computer-first').checked ? 'computer' : 'player' });
-    });
-    pair('cb-reading', 'cb-numpad', function () {
-      game.applySettings({ digitLayout: $('cb-numpad').checked ? 'numpad' : 'reading' });
-    });
-    $('settings-close').addEventListener('click', closeSettings);
+    $('set-ok').addEventListener('click', applySettingsOk);
+    $('set-cancel').addEventListener('click', closeSettings);
   }
 
   /* -------------------------------------------------------- об авторе */
@@ -411,16 +415,20 @@
         }
         break;
       case 'settings':
-        if (action === 'UP' || action === 'DOWN' ||
-            action === 'LEFT' || action === 'RIGHT') {
-          moveCheckSel(action);
+        if (action === 'UP' && settingsPos > 0) {
+          settingsPos--; renderSettings();
+        } else if (action === 'DOWN' && settingsPos < 4) {
+          settingsPos++; renderSettings();
         } else if (action === 'CONFIRM') {
-          // переключение выбранного варианта пары (Space/A)
-          var cb = $(CHECK_IDS[checkIndex]);
-          cb.checked = true;
-          fireChange(cb);
+          if (settingsPos < 3) {
+            cycleSetting(SETTING_KEYS[settingsPos]);
+          } else if (settingsPos === 3) {
+            applySettingsOk();
+          } else {
+            closeSettings();
+          }
         } else if (action === 'BACK') {
-          closeSettings();
+          closeSettings(); // отмена без применения
         }
         break;
       case 'about':

@@ -172,15 +172,12 @@ html, body {
 }
 
 /* клавиатурная подсветка пунктов меню и вариантов настроек */
+/* клавиатурная подсветка пунктов меню, строк настроек и плиток */
 .dd-item.kbd-active, .menu-item.kbd-active {
   background: #3a3220;
   color: #ffe9a8;
 }
 
-.pz-check input.kbd-active + .box {
-  outline: 1px dashed #57492a;
-  outline-offset: 1px;
-}
 
 /* ------------------------------------------------------------ оверлеи */
 
@@ -241,14 +238,100 @@ html, body {
 
 .modal { position: relative; border: 1px solid #3a3220; overflow: hidden; }
 
-/* Настройки: TSETTINGSW 341x319; фон — два исходных JPEG друг над другом,
- * как в DFM (Image2 поверх Image1) */
+/* Настройки: диалог в стиле ПЗ (change redesign-settings-window) —
+ * тёмная панель с золотой рамкой в пределах игрового поля (417x418) */
 .modal.settings {
-  width: 341px;
-  height: 319px;
-  background:
-    url("../assets/img/settings-bg-2.jpg") 0 0 / 345px 321px no-repeat,
-    #000 url("../assets/img/settings-bg-1.jpg") 0 0 / 348px 321px no-repeat;
+  width: 404px;
+  height: 410px;
+  background: linear-gradient(180deg, #1a1509 0%, #14110a 40%, #0f0d07 100%);
+  border: 2px solid #4a4128;
+  outline: 1px solid #201b0e;
+  box-shadow: 0 0 24px rgba(0, 0, 0, .85), inset 0 0 30px rgba(0, 0, 0, .6);
+  padding: 0;
+}
+
+/* плита-заголовок */
+.settings-title {
+  margin: 12px auto 0;
+  width: 220px;
+  text-align: center;
+  padding: 6px 0;
+  color: #ffe9a8;
+  font-size: 17px;
+  letter-spacing: 2px;
+  background: linear-gradient(180deg, #3a3220, #241d10);
+  border: 1px solid #57492a;
+  outline: 1px solid #17130a;
+  box-shadow: inset 0 1px 0 rgba(232, 220, 174, .25), 0 2px 6px rgba(0, 0, 0, .6);
+  text-shadow: 0 1px 2px #000;
+  user-select: none;
+}
+
+/* рамка списка; фон — существо по уровню сложности черновика:
+ * .easy -> кролик (settings-bg-2), .hard -> тролль (settings-bg-1) */
+.settings-frame {
+  margin: 12px 14px 0;
+  height: 240px;
+  border: 2px solid #57492a;
+  outline: 1px solid #201b0e;
+  background-color: #0a0804;
+  background-size: auto 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: inset 0 0 14px rgba(0, 0, 0, .7);
+}
+
+.settings-frame.easy { background-image: url("../assets/img/settings-bg-2.jpg"); }
+.settings-frame.hard { background-image: url("../assets/img/settings-bg-1.jpg"); }
+
+.settings-row {
+  display: flex;
+  align-items: baseline;
+  padding: 13px 12px;
+  margin: 0 6px;
+  background: rgba(10, 8, 4, .74);
+  border-bottom: 1px solid rgba(74, 65, 40, .5);
+  color: #cfc7ab;
+  font-size: 14px;
+  cursor: url("../assets/cursors/ei-arrow.png") 3 0, auto;
+  user-select: none;
+}
+
+.settings-row:first-child { margin-top: 10px; }
+
+.set-name { flex: 1; }
+.set-sep { color: #8a7b4f; margin: 0 10px; }
+.set-value { color: #ffe9a8; }
+
+.settings-row.kbd-active, .settings-row:hover {
+  background: rgba(38, 30, 15, .9);
+  outline: 1px solid #57492a;
+}
+
+/* плиты OK/X */
+.settings-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 26px;
+  margin-top: 14px;
+}
+
+.plate-btn {
+  width: 64px;
+  height: 44px;
+  font-size: 22px;
+  line-height: 1;
+  color: #ffe9a8;
+  background: linear-gradient(180deg, #3a3220, #241d10);
+  border: 1px solid #57492a;
+  outline: 1px solid #17130a;
+  box-shadow: inset 0 1px 0 rgba(232, 220, 174, .25), 0 2px 6px rgba(0, 0, 0, .6);
+  cursor: url("../assets/cursors/ei-arrow.png") 3 0, auto;
+}
+
+.plate-btn:hover, .plate-btn.kbd-active {
+  background: linear-gradient(180deg, #4a4128, #2e2617);
+  color: #fff3c8;
 }
 
 /* Об авторе: TABOUTAVTOR 344x384 */
@@ -270,49 +353,6 @@ html, body {
 
 .modal-close:hover { color: #ffe9a8; }
 
-/* TLabel с непрозрачным цветным фоном, как в VCL (Color = фон подписи) */
-.pz-label {
-  position: absolute;
-  height: 13px;
-  line-height: 13px;
-  font-size: 11px;
-  color: #000;
-  white-space: nowrap;
-}
-
-/* TCheckBox: коробка + подпись исходного цвета */
-.pz-check {
-  position: absolute;
-  height: 17px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  user-select: none;
-}
-
-.pz-check input { display: none; }
-
-.pz-check .box {
-  width: 13px; height: 13px;
-  background: #d8d0c0;
-  border: 1px solid #404040;
-  box-shadow: inset 1px 1px 0 #fff;
-  flex: none;
-}
-
-.pz-check input:checked + .box::after {
-  content: "\2713";
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: #101010;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.pz-check .cap { text-shadow: 0 1px 1px rgba(0, 0, 0, .6); }
 
 /* TMemo «Об авторе»: прямоугольник 345x129 в позиции (0,256),
  * текст цвета clGradientInactiveCaption. Шрифт 11px/1.2 — как в оригинале
