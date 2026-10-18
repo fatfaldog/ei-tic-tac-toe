@@ -9,6 +9,7 @@
 Зависимости: macOS sips (масштабирование), остальное — stdlib.
 Запуск: python3 tools/make_favicon.py
 """
+import math
 import os
 import struct
 import subprocess
@@ -23,8 +24,49 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, 'web/assets/img/cell-a.jpg')
 OUT = os.path.join(ROOT, 'web/assets/img')
 
-# кроп кольца: центр текстуры (50, 50), квадрат 70x70
-CX, CY, HALF = 50, 50, 35
+# Кроп кольца: авто-центровка — bbox «ярких+тёплых» пикселей (кольцо),
+# квадрат с запасом; фиксирует смещение кольца внутри текстуры.
+PAD = 6
+
+
+def ring_bbox(px, w, h):
+    xs, ys = [], []
+    for y in range(h):
+        for x in range(w):
+            r, g, b = px[y][x]
+            lum = 0.3 * r + 0.6 * g + 0.1 * b
+            if lum > 105 and (g - b) > 10:
+                xs.append(x)
+                ys.append(y)
+    if not xs:
+        raise SystemExit('кольцо не найдено в текстуре')
+    return min(xs), min(ys), max(xs), max(ys)
+
+
+def crop_alpha(px, w, h):
+    x0, y0, x1, y1 = ring_bbox(px, w, h)
+    cx, cy = (x0 + x1) // 2, (y0 + y1) // 2
+    half = max(x1 - x0, y1 - y0) // 2 + PAD
+    # не выходить за границы текстуры
+    left = min(max(cx - half, 0), w - 2 * half - 1)
+    top = min(max(cy - half, 0), h - 2 * half - 1)
+    out = []
+    c2 = half  # радиальный затвор: центр кропа, полный до 0.8, ноль на краю
+    for yi in range(2 * half):
+        row = []
+        for xi in range(2 * half):
+            x = left + xi
+            y = top + yi
+            r = math.hypot(xi - half + 0.5, yi - half + 0.5)
+            gate = clamp01((c2 - r) / (0.25 * c2))   # 1 внутри 0.75R, 0 на R
+            r_, g_, b_ = px[y][x]
+            lum = 0.3 * r_ + 0.6 * g_ + 0.1 * b_
+            warm = g_ - b_
+            a = max(clamp01((lum - 46) / 34.0),    # яркость: тёмный фон -> 0
+                    clamp01((warm - 6) / 10.0))    # теплота: холодный фон -> 0
+            row.append((r_, g_, b_, int(a * gate * 255)))
+        out.append(row)
+    return out
 
 
 def jpeg_to_pixels(jpeg_path):
@@ -53,22 +95,6 @@ def jpeg_to_pixels(jpeg_path):
 
 def clamp01(v):
     return max(0.0, min(1.0, v))
-
-
-def crop_alpha(px):
-    """Кроп 70x70 с центром кольца + альфа (яркость ИЛИ теплота)."""
-    out = []
-    for y in range(CY - HALF, CY + HALF):
-        row = []
-        for x in range(CX - HALF, CX + HALF):
-            r, g, b = px[y][x]
-            lum = 0.3 * r + 0.6 * g + 0.1 * b
-            warm = g - b
-            a = max(clamp01((lum - 46) / 34.0),    # яркость: тёмный фон -> 0
-                    clamp01((warm - 6) / 10.0))    # теплота: холодный фон -> 0
-            row.append((r, g, b, int(a * 255)))
-        out.append(row)
-    return out
 
 
 def write_png(path, rows):
@@ -143,7 +169,7 @@ def scale(rows, n):
 
 def main():
     px, w, h = jpeg_to_pixels(SRC)
-    crop = crop_alpha(px)
+    crop = crop_alpha(px, w, h)
 
     rows32 = scale(crop, 32)
     rows16 = scale(crop, 16)
