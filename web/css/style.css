@@ -250,12 +250,12 @@ html, body {
   padding: 0;
 }
 
-/* плита-заголовок: срез с options-экрана ПЗ (references/2_1.jpg) —
+/* плита-заголовок: срез с options-экрана ПЗ (references/2_1.jpg, x[694..1228] y[16..115]) —
  * текст вплавлен в картинку, наш текст не нужен */
 .settings-title {
   margin: 10px auto 0;
   width: 340px;
-  height: 78px;
+  height: 63px;
   background: url("../assets/img/plate-settings.png") center / contain no-repeat;
   text-indent: -9999px;
   overflow: hidden;
@@ -304,17 +304,20 @@ html, body {
   outline: 1px solid #57492a;
 }
 
-/* плиты OK/X: срезы с options-экрана ПЗ (галочка — 2_1.jpg, крестик —
- * кроп автора с другого момента игры); символы вплавлены в картинки */
+/* плиты OK/X: срезы с options-экрана ПЗ — плитки одинаковые (174x82,
+ * x[512..686] y[947..1029]); крестик собран из базы-галочки и глифа с
+ * частично перекрытой плитки крестика (текстуры идентичны) */
 .settings-buttons {
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  gap: 18px;
+  gap: 24px;
   margin-top: 12px;
 }
 
 .plate-btn {
+  width: 130px;
+  height: 61px;
   border: 0;
   padding: 0;
   background-color: transparent;
@@ -328,14 +331,10 @@ html, body {
 }
 
 #set-ok {
-  width: 140px;
-  height: 78px;
   background-image: url("../assets/img/plate-confirm.png");
 }
 
 #set-cancel {
-  width: 125px;
-  height: 74px;
   background-image: url("../assets/img/plate-cancel.png");
 }
 
