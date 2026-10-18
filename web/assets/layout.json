@@ -746,7 +746,11 @@
    "shipped": false
   }
  ],
- "icon": "icon.ico",
+ "icon": {
+  "resource": "MAINICON",
+  "what": "стандартная Delphi-заглушка",
+  "shipped": false
+ },
  "mainCells": [
   {
    "cls": "TImage",

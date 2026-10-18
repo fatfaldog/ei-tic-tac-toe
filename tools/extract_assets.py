@@ -334,7 +334,7 @@ def main():
     os.makedirs(os.path.join(OUT, 'img'), exist_ok=True)
     os.makedirs(os.path.join(OUT, 'cursors'), exist_ok=True)
 
-    layout = {'forms': {}, 'images': {}, 'cursors': [], 'icon': 'icon.ico'}
+    layout = {'forms': {}, 'images': {}, 'cursors': []}
 
     # --- формы (RCDATA с TPF0) и картинки из Picture.Data
     forms_raw = {}
@@ -408,12 +408,11 @@ def main():
     layout['cursors'] = sorted(cursor_meta, key=lambda c: c['resource'])
     layout['cursors'] = sorted(cursor_meta, key=lambda c: int(c['resource']))
 
-    # --- иконка: GROUP_ICON(14) + ICON(3)
-    members = {name: blob[off:off + size] for name, off, size in by_type.get(3, [])}
-    for name, off, size in by_type.get(14, []):
-        if name == 'MAINICON':
-            ico = group_to_cur(blob[off:off + size], members)
-            open(os.path.join(OUT, 'icon.ico'), 'wb').write(ico)
+    # --- иконка exe: в поставку НЕ входит (стандартная Delphi-заглушка;
+    # favicon игры — производный ассет из текстуры нолика, tools/make_favicon.py,
+    # change replace-favicon-with-nought); инвентаризация остаётся
+    layout['icon'] = {'resource': 'MAINICON', 'what': 'стандартная Delphi-заглушка',
+                      'shipped': False}
 
     # --- порядок клеток главной формы (Left/Top/Width/Height TImage и TPanel)
     cells = []
@@ -457,7 +456,6 @@ def main():
     print('Формы:', ', '.join(sorted(forms_raw)))
     print('JPEG:', n_img, '(ожидалось 6: фон, клетка-A, клетка-B, фоны настроек x2, об авторе)')
     print('Курсоры в поставке (PNG):', n_cur_png, '(ожидался 1: ei-arrow.png)')
-    print('Иконка:', os.path.getsize(os.path.join(OUT, 'icon.ico')), 'байт')
     print('layout.json:', os.path.getsize(json_path), 'байт')
     if n_img != 6 or n_cur_png != 1:
         print('ОШИБКА: количество ассетов не соответствует инвентарю', file=sys.stderr)
