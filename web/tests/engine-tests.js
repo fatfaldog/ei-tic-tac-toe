@@ -1,4 +1,6 @@
-/* Тесты движка — сценарии спецификации tic-tac-toe-game (задачи 2.1, 2.2). */
+/* Тесты движка — сценарии спецификации tic-tac-toe-game.
+ * Знаки параметризованы правом первого хода (change first-mover-plays-crosses):
+ * первый ходящий играет крестиками. */
 (function (T, K) {
   'use strict';
 
@@ -14,29 +16,55 @@
     T.eq(e.status, 'playing');
   });
 
-  // Requirement: Фиксированные знаки сторон / Scenario: Знаки сторон
-  T.test('Знаки сторон: игрок — X, компьютер — O', function () {
-    var e = fresh();
+  // Requirement: Фиксированные знаки сторон / Scenario: Знаки сторон (игрок первым)
+  T.test('Игрок первым: игрок — X, компьютер — O', function () {
+    var e = fresh('player');
+    T.eq(e.playerMark, 'X');
+    T.eq(e.computerMark, 'O');
     T.assert(e.playerMove(4), 'ход игрока принят');
     T.eq(e.board[4], 'X', 'игрок поставил крестик');
     T.assert(e.computerMove(0), 'ответ компьютера принят');
     T.eq(e.board[0], 'O', 'компьютер поставил нолик');
   });
 
+  // Requirement: Фиксированные знаки сторон / Scenario: Компьютер ходит первым
+  T.test('Компьютер первым: компьютер — X, игрок — O', function () {
+    var e = fresh('computer');
+    T.eq(e.computerMark, 'X', 'первый ходящий — крестики');
+    T.eq(e.playerMark, 'O');
+    T.assert(e.computerMove(4), 'первый ход компьютера принят');
+    T.eq(e.board[4], 'X', 'компьютер поставил крестик');
+    T.assert(e.playerMove(0), 'ответ игрока принят');
+    T.eq(e.board[0], 'O', 'игрок поставил нолик');
+  });
+
+  // Requirement: Фиксированные знаки сторон / Scenario: Смена знаков между партиями
+  T.test('Смена расклада знаков между партиями', function () {
+    var e = fresh('computer');
+    e.computerMove(4); e.playerMove(0);
+    T.eq(e.playerMark, 'O');
+    // та же партия — знаки не меняются
+    T.eq(e.board[4], 'X'); T.eq(e.board[0], 'O');
+    // смена настройки на «Я» (новый Engine) — игрок снова крестик
+    var e2 = fresh('player');
+    T.eq(e2.playerMark, 'X');
+    T.eq(e2.computerMark, 'O');
+  });
+
   // Requirement: Ходы в пустые клетки / Scenario: Ход игрока в пустую клетку
   T.test('Ход в пустую клетку принят, очередь переходит', function () {
     var e = fresh();
     T.assert(e.playerMove(0), 'ход принят');
-    T.eq(e.board[0], 'X');
+    T.eq(e.board[0], e.playerMark);
     T.eq(e.current, 'computer', 'очередь у компьютера');
   });
 
   // Requirement: Ходы в пустые клетки / Scenario: Попытка хода в занятую клетку
   T.test('Ход в занятую клетку (свою и чужую) игнорируется', function () {
     var e = fresh();
-    e.playerMove(4);                 // X в центре
+    e.playerMove(4);                 // знак игрока в центре
     T.assert(!e.playerMove(4), 'повторный ход в свою клетку отклонён');
-    e.computerMove(0);               // O в углу — очередь компьютера
+    e.computerMove(0);               // знак компьютера в углу
     T.assert(!e.playerMove(0), 'ход в клетку компьютера отклонён');
     T.eq(e.current, 'player', 'очередь не изменилась');
     T.eq(e.board[4], 'X');
@@ -63,7 +91,7 @@
   });
 
   // Requirement: Определение победы / Scenario: Победа игрока
-  T.test('Победа игрока: ряд из трёх X завершает партию', function () {
+  T.test('Победа игрока: ряд из трёх его знаков завершает партию', function () {
     var e = fresh();
     e.playerMove(0); e.computerMove(3);
     e.playerMove(1); e.computerMove(4);
@@ -72,6 +100,26 @@
     T.eq(e.winnerLine, [0, 1, 2], 'победная линия определена');
     T.assert(!e.computerMove(5), 'ход после победы игнорируется');
     T.assert(!e.playerMove(5), 'ход игрока после победы тоже игнорируется');
+  });
+
+  // Requirement: Определение победы / Scenario: Победа игрока ноликами
+  T.test('Победа игрока ноликами (компьютер ходит первым)', function () {
+    var e = fresh('computer');
+    e.computerMove(0); e.playerMove(3);
+    e.computerMove(1); e.playerMove(4);
+    e.computerMove(8); e.playerMove(5); // вертикаль 3-4-5 ноликами игрока
+    T.eq(e.status, 'playerWon', 'победа игрока при его знаке O');
+    T.eq(e.winnerLine, [3, 4, 5]);
+  });
+
+  // Requirement: Определение победы / Scenario: Победа компьютера крестиками
+  T.test('Победа компьютера крестиками (компьютер ходит первым)', function () {
+    var e = fresh('computer');
+    e.computerMove(0); e.playerMove(1);
+    e.computerMove(4); e.playerMove(2);
+    e.computerMove(8); // диагональ 0-4-8 крестиками компьютера
+    T.eq(e.status, 'computerWon', 'победа компьютера при его знаке X');
+    T.eq(e.winnerLine, [0, 4, 8]);
   });
 
   // Requirement: Определение победы / Scenario: Победа компьютера
@@ -110,7 +158,7 @@
   });
 
   // Requirement: Новая партия / Scenario: Перезапуск после завершённой партии
-  T.test('Новая игра сбрасывает поле и очерёдность по настройке', function () {
+  T.test('Новая игра сбрасывает поле, очерёдность и знаки по настройке', function () {
     var e = fresh('player');
     e.playerMove(0); e.computerMove(4); e.playerMove(1); e.computerMove(8);
     e.reset();
@@ -118,10 +166,12 @@
       'поле очищено');
     T.eq(e.status, 'playing', 'партия заново идёт');
     T.eq(e.current, 'player', 'первым снова игрок');
+    T.eq(e.playerMark, 'X', 'знаки переназначены');
     var e2 = fresh('computer');
     e2.computerMove(0);
     e2.reset();
     T.eq(e2.current, 'computer', 'при first=computer первым снова компьютер');
+    T.eq(e2.computerMark, 'X', 'компьютер снова крестиками');
   });
 })(typeof window !== 'undefined' ? window.T : globalThis.T,
     typeof window !== 'undefined' ? window.Krestiki : globalThis.Krestiki);

@@ -207,7 +207,14 @@ $('set-ok').click();
 assert($('settings-modal').hidden, 'галочка закрывает окно');
 fire($('mi-new-game'), 'click', { target: $('mi-new-game') });
 const noughtsAfter = board.children.filter(c => c.classList.contains('nought')).length;
-assert(noughtsAfter === 1, '«Комп» первым: после «Новой игры» на поле один нолик');
+assert(noughtsAfter === 0, '«Комп» первым: игрок-нолик ещё не ходил (ноликов нет)');
+const crossesAfter = board.children.filter(c => c.classList.contains('cross')).length;
+assert(crossesAfter === 1, '«Комп» первым: компьютер поставил один крестик (первый ходящий — X)');
+// призрак игрока при его знаке-нолике (first-mover-plays-crosses):
+// наведём фокус на пустую клетку — вид ghost-nought
+fire(board, 'mouseover', { target: board.children[8] });
+assert(board.children[8].classList.contains('ghost-nought'),
+  'призрак игрока-нолика: класс ghost-nought на пустой клетке');
 
 // вернуть умолчания для последующих тестов: Легкий, Я, Читающая
 $('mi-settings').click();

@@ -149,14 +149,23 @@ html, body {
               0 0 4px 1px rgba(201, 187, 146, .3);
 }
 
-/* призрак крестика игрока: та же оригинальная текстура, тот же размер
- * и положение, что у поставленного крестика, полупрозрачно */
-.cell.focused.ghost::after {
+/* призрак знака игрока: та же оригинальная текстура, полупрозрачно,
+ * центрируется в клетке как и сам знак. ghost — крестик; ghost-nought —
+ * нолик (когда компьютер ходит первым и играет крестиками) */
+.cell.focused.ghost::after,
+.cell.focused.ghost-nought::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: url("../assets/img/cell-b-1.jpg") calc(50% + 1px) calc(50% + 2px) / 96px 94px no-repeat;
   opacity: .45;
+}
+
+.cell.focused.ghost::after {
+  background: url("../assets/img/cell-b-1.jpg") calc(50% + 1px) calc(50% + 2px) / 96px 94px no-repeat;
+}
+
+.cell.focused.ghost-nought::after {
+  background: url("../assets/img/cell-a-1.jpg") calc(50% - 4px) calc(50% + 6px) / 93px 112px no-repeat;
 }
 
 /* занятая клетка: ход сюда невозможен */

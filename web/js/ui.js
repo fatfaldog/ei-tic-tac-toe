@@ -59,17 +59,22 @@
   var uiContext = 'board';     // board | menu | settings | about | result | farewell
 
   /** Чистая функция вида фокуса (design.md D3):
-   *  ghost — пустая клетка в очередь игрока (призрак крестика);
+   *  ghost / ghost-nought — пустая клетка в очередь игрока (призрак текущего
+   *  знака игрока: крестика или нолика — change first-mover-plays-crosses);
    *  glow  — пустая в очередь компьютера; invalid — занятая;
    *  dim   — партия не идёт или ввод в другом контексте. */
-  function focusView(cellIdx, board, side, status, context) {
+  function focusView(cellIdx, board, side, status, context, playerMark) {
     if (context !== 'board' || status !== 'playing') {
       return 'dim';
     }
     if (board[cellIdx]) {
       return 'invalid';
     }
-    return side === 'player' ? 'ghost' : 'glow';
+    if (side !== 'player') {
+      return 'glow';
+    }
+    // призрак — текущий знак игрока: крестик или нолик (first-mover-plays-crosses)
+    return playerMark === 'O' ? 'ghost-nought' : 'ghost';
   }
 
   function currentFocusView() {
@@ -77,13 +82,13 @@
       return null;
     }
     return focusView(focusCell, game.engine.board, game.engine.current,
-      game.engine.status, uiContext);
+      game.engine.status, uiContext, game.engine.playerMark);
   }
 
   function renderFocus() {
     var view = currentFocusView();
     for (var i = 0; i < 9; i++) {
-      cellEls[i].classList.remove('focused', 'ghost', 'invalid', 'dim');
+      cellEls[i].classList.remove('focused', 'ghost', 'ghost-nought', 'invalid', 'dim');
       if (view && i === focusCell) {
         cellEls[i].classList.add('focused', view);
       }
@@ -175,6 +180,7 @@
     if (event === 'newgame') {
       renderAllCells();
       hideResult();
+      focusCell = null; // новая партия — фокус сбрасывается
     } else if (event === 'move') {
       renderCell(data.index);
     } else if (event === 'gameover') {

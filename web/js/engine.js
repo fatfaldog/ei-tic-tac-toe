@@ -1,7 +1,8 @@
 /* Крестики-нолики по ПЗшному — движок правил (capability: tic-tac-toe-game).
  *
- * Чистая логика без DOM (design.md D4). Стороны: игрок = крестики ('X'),
- * компьютер = нолики ('O'). Все сценарии — в specs/tic-tac-toe-game/spec.md.
+ * Чистая логика без DOM (design.md D4). Знаки назначаются по праву первого
+ * хода (change first-mover-plays-crosses): первый ходящий играет крестиками
+ * ('X'), второй — ноликами ('O'). Все сценарии — в specs/tic-tac-toe-game/spec.md.
  *
  * Здесь же — Krestiki.Game: оркестратор партии (движок + ИИ + настройки),
  * тоже без DOM; UI (ui.js/main.js) подписывается на события.
@@ -40,13 +41,16 @@
     this.board = [null, null, null, null, null, null, null, null, null];
     // текущая сторона: 'player' | 'computer'
     this.current = this.whoFirst;
+    // знаки по праву первого хода: ходящий первым — крестики (design D1)
+    this.playerMark = this.whoFirst === 'player' ? 'X' : 'O';
+    this.computerMark = this.whoFirst === 'player' ? 'O' : 'X';
     // 'playing' | 'playerWon' | 'computerWon' | 'draw'
     this.status = 'playing';
     this.winnerLine = null;
   };
 
   Engine.prototype.sideMark = function (side) {
-    return side === 'player' ? 'X' : 'O';
+    return side === 'player' ? this.playerMark : this.computerMark;
   };
 
   Engine.prototype.canMove = function (side, index) {
@@ -65,7 +69,7 @@
     this.board[index] = this.sideMark(side);
     var win = findLine(this.board);
     if (win) {
-      this.status = win.side === 'X' ? 'playerWon' : 'computerWon';
+      this.status = win.side === this.playerMark ? 'playerWon' : 'computerWon';
       this.winnerLine = win.line;
     } else if (this.board.indexOf(null) === -1) {
       this.status = 'draw';
@@ -91,7 +95,8 @@
    * Оркестратор партии: настройки по умолчанию (specs/computer-opponent),
    * применение их к новой партии, автоматический ход компьютера.
    * settings: { level: 'easy'|'hard', first: 'player'|'computer' }
-   * ai: объект с методом pickMove(level, board) — внедряется (ai.js).
+   * ai: объект с методом pickMove(level, board, marks) — внедряется (ai.js);
+   * marks = { my: знак компьютера, opp: знак игрока }.
    */
   function Game(ai, settings) {
     this.ai = ai;
@@ -128,7 +133,8 @@
    *  компьютер — сразу делает первый ход в пустое поле. */
   Game.prototype.newGame = function () {
     this.engine = new Engine(this.settings.first);
-    this.emit('newgame', { first: this.settings.first });
+    this.emit('newgame', { first: this.settings.first,
+      playerMark: this.engine.playerMark, computerMark: this.engine.computerMark });
     if (this.settings.first === 'computer') {
       this.computerTurn();
     }
@@ -142,7 +148,7 @@
     if (!this.engine.playerMove(index)) {
       return false; // очередь не та / клетка занята / партия завершена
     }
-    this.emit('move', { side: 'player', index: index, mark: 'X' });
+    this.emit('move', { side: 'player', index: index, mark: this.engine.playerMark });
     if (this.engine.status === 'playing') {
       this.computerTurn();
     } else {
@@ -153,11 +159,12 @@
 
   /** Ход компьютера через ИИ выбранного уровня. */
   Game.prototype.computerTurn = function () {
-    var index = this.ai.pickMove(this.settings.level, this.engine.board);
+    var marks = { my: this.engine.computerMark, opp: this.engine.playerMark };
+    var index = this.ai.pickMove(this.settings.level, this.engine.board, marks);
     if (!this.engine.computerMove(index)) {
       throw new Error('ИИ выбрал недопустимый ход: ' + index);
     }
-    this.emit('move', { side: 'computer', index: index, mark: 'O' });
+    this.emit('move', { side: 'computer', index: index, mark: this.engine.computerMark });
     if (this.engine.status !== 'playing') {
       this.emitGameOver();
     }

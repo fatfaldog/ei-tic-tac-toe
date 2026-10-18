@@ -127,13 +127,14 @@
   }
 
   // Scenario: Компьютер ходит первым
-  T.test('Настройка «Комп»: компьютер делает первый ход в пустое поле', function () {
+  T.test('Настройка «Комп»: компьютер делает первый ход крестиками', function () {
     var ctx = makeGame({ level: 'hard', first: 'computer' });
     ctx.game.newGame();
     T.eq(ctx.game.engine.board.filter(function (c) { return c; }).length, 1,
       'на поле ровно один знак');
-    T.eq(ctx.game.engine.board.filter(function (c) { return c === 'O'; }).length, 1,
-      'этот знак — нолик компьютера');
+    T.eq(ctx.game.engine.board.filter(function (c) { return c === 'X'; }).length, 1,
+      'этот знак — крестик компьютера (первый ходящий играет X)');
+    T.eq(ctx.game.engine.playerMark, 'O', 'игрок при этом играет ноликами');
     T.eq(ctx.game.engine.current, 'player', 'после первого хода — очередь игрока');
   });
 
@@ -163,8 +164,8 @@
     // текущая партия не прерывается — поле прежнее (пустое)
     T.eq(ctx.game.engine.board, [_, _, _, _, _, _, _, _, _]);
     ctx.game.newGame(); // новая партия по новым настройкам
-    T.eq(ctx.game.engine.board.filter(function (c) { return c === 'O'; }).length, 1,
-      'компьютер сходил первым в новой партии');
+    T.eq(ctx.game.engine.board.filter(function (c) { return c === 'X'; }).length, 1,
+      'компьютер сходил первым (крестиком) в новой партии');
     // и уровень применился: проверим, что движок игры использует hard
     T.eq(ctx.game.settings.level, 'hard');
   });
@@ -181,6 +182,80 @@
     game.playerTurn(8);
     T.assert(['playing', 'playerWon', 'computerWon', 'draw']
       .indexOf(game.engine.status) !== -1, 'статус валиден');
+  });
+
+  /* ------- Requirement: Идеальная игра любым знаком (оба назначения) ------ */
+
+  T.test('Легкий крестиками: завершает свою линию из двух X, блокирует O', function () {
+    // компьютер = X (ходит первым): своя линия 0,2 → клетка 1
+    T.eq(K.easyMove(['X', _, 'X', 'O', 'O', _, _, _, _], 'X'), 1,
+      'завершает линию крестиков');
+    // угроза игрока O в 3,4 → блок 5 (своих выигрышей нет)
+    T.eq(K.easyMove(['X', _, _, 'O', 'O', _, _, 'X', _], 'X'), 5,
+      'блокирует линию ноликов');
+  });
+
+  T.test('Тяжелый крестиками: немедленно завершает и блокирует', function () {
+    T.eq(K.hardMove(['X', _, _, 'X', 'O', _, _, _, 'O'], 'X'), 6, 'X 0,3 → 6');
+    T.eq(K.hardMove(['O', _, _, 'O', 'X', _, _, _, 'X'], 'X'), 6, 'блок O 0,3 → 6');
+  });
+
+  T.test('Тяжелый крестиками: игрок не побеждает ни при какой игре', function () {
+    // полный перебор: компьютер = X и ходит первым, игрок = O
+    var stats = { computerWon: 0, draw: 0, playerWon: 0 };
+
+    function playAllX(board, turn) {
+      var win = K.findLine(board);
+      if (win) {
+        stats[win.side === 'X' ? 'computerWon' : 'playerWon']++;
+        return;
+      }
+      var empties = [];
+      for (var i = 0; i < 9; i++) if (!board[i]) empties.push(i);
+      if (empties.length === 0) {
+        stats.draw++;
+        return;
+      }
+      for (var e = 0; e < empties.length; e++) {
+        var idx = empties[e];
+        if (turn === 'O') {
+          board[idx] = 'O';
+          playAllX(board, 'X');
+          board[idx] = null;
+        } else {
+          var best = K.hardMoves(board, 'X');
+          for (var b = 0; b < best.length; b++) {
+            board[best[b]] = 'X';
+            playAllX(board, 'O');
+            board[best[b]] = null;
+          }
+          return;
+        }
+      }
+    }
+
+    var start = [_, _, _, _, _, _, _, _, _];
+    var firsts = K.hardMoves(start.slice(), 'X');
+    for (var f = 0; f < firsts.length; f++) {
+      var b1 = start.slice();
+      b1[firsts[f]] = 'X';
+      playAllX(b1, 'O');
+    }
+    T.eq(stats.playerWon, 0, 'побед игрока: ' + JSON.stringify(stats));
+    T.assert(stats.computerWon > 0, 'компьютер-крестик умеет выигрывать: ' + JSON.stringify(stats));
+  });
+
+  T.test('Игра за нолики: партия «Комп» первым проходит игроком-O полностью', function () {
+    var ctx = makeGame({ level: 'easy', first: 'computer' });
+    ctx.game.newGame();
+    var game = ctx.game;
+    // компьютер уже поставил крестик; игрок отвечает ноликом
+    var crosses = game.engine.board.filter(function (c) { return c === 'X'; }).length;
+    T.eq(crosses, 1, 'первый крестик компьютера на поле');
+    game.playerTurn(4);
+    T.eq(game.engine.board[4], 'O', 'ход игрока поставил нолик');
+    T.eq(game.engine.board.filter(function (c) { return c === 'O'; }).length, 1,
+      'нолик игрока один');
   });
 })(typeof window !== 'undefined' ? window.T : globalThis.T,
     typeof window !== 'undefined' ? window.Krestiki : globalThis.Krestiki);
