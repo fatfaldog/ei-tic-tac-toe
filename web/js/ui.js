@@ -349,8 +349,13 @@
   }
 
   function applySettingsOk() {
-    game.applySettings(settingsDraft); // уровень/первый ход — к следующей партии,
-    closeSettings();                   // раскладка — немедленно (applySettings)
+    var gameplayChanged = settingsDraft.level !== game.settings.level ||
+      settingsDraft.first !== game.settings.first;
+    game.applySettings(settingsDraft); // раскладка действует немедленно
+    closeSettings();
+    if (gameplayChanged) {
+      newGame(); // геймплейные настройки — сразу новой партией (design D1)
+    }
   }
 
   function initSettings() {

@@ -205,11 +205,12 @@ $('set-row-first').click();            // -> Комп
 $('set-row-layout').click();           // -> Нумпад
 $('set-ok').click();
 assert($('settings-modal').hidden, 'галочка закрывает окно');
-fire($('mi-new-game'), 'click', { target: $('mi-new-game') });
+// геймплейные настройки перезапускают партию немедленно (settings-apply-restarts-game):
+// поле уже чистое, «Комп» первым сходил крестиком — без ручной «Новой игры»
 const noughtsAfter = board.children.filter(c => c.classList.contains('nought')).length;
 assert(noughtsAfter === 0, '«Комп» первым: игрок-нолик ещё не ходил (ноликов нет)');
 const crossesAfter = board.children.filter(c => c.classList.contains('cross')).length;
-assert(crossesAfter === 1, '«Комп» первым: компьютер поставил один крестик (первый ходящий — X)');
+assert(crossesAfter === 1, 'галочка с геймплейной сменой: компьютер поставил один крестик');
 // призрак игрока при его знаке-нолике (first-mover-plays-crosses):
 // наведём фокус на пустую клетку — вид ghost-nought
 fire(board, 'mouseover', { target: board.children[8] });
@@ -222,6 +223,31 @@ $('set-row-level').click();            // -> Легкий
 $('set-row-first').click();            // -> Я
 $('set-row-layout').click();           // -> Читающая
 $('set-ok').click();
+
+// только раскладка: партия НЕ перезапускается — пара ходов остаётся на поле
+$('mi-new-game').click();              // чистая партия (Я первым, Легкий)
+fire(board, 'click', { target: board.children[4] });  // ход игрока + ответ компьютера
+const marksBeforeLayout = board.children.filter(c => c.classList.contains('cross') || c.classList.contains('nought')).length;
+assert(marksBeforeLayout === 2, 'подготовка: на поле два знака');
+$('mi-settings').click();
+$('set-row-layout').click();           // -> Нумпад (не геймплейная)
+$('set-ok').click();
+const marksAfterLayout = board.children.filter(c => c.classList.contains('cross') || c.classList.contains('nought')).length;
+assert(marksAfterLayout === 2, 'только раскладка: поле не перезапущено, знаки на месте');
+// раскладка при этом применилась: цифра 7 (нумпад) = верхняя левая
+fire(board, 'mouseover', { target: board.children[8] });
+(documentStub._listeners.keydown || []).forEach(fn => fn({
+  code: 'Digit7', ctrlKey: false, metaKey: false, altKey: false, preventDefault() {}
+}));
+assert(board.children[0].classList.contains('ghost') ||
+  board.children[0].classList.contains('ghost-nought'),
+  'раскладка применилась без перезапуска: 7 -> верхняя левая (клетка 0)');
+// вернуть Читающую для клавиатурных тестов ниже (снова без перезапуска)
+$('mi-settings').click();
+$('set-row-layout').click();           // -> Читающая
+$('set-ok').click();
+assert(board.children.filter(c => c.classList.contains('cross') || c.classList.contains('nought')).length === 2,
+  'возврат раскладки тоже не перезапустил партию');
 $('mi-about').click();
 const layout = JSON.parse(fs.readFileSync(path.join(ROOT, 'web/assets/layout.json'), 'utf8'));
 const aboutNode = layout.forms.TABOUTAVTOR.children.find(c => c.cls === 'TMemo');
