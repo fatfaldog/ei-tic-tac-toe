@@ -11,7 +11,8 @@ const ROOT = path.join(__dirname, '..');
 const PRELUDE = [
   'web/tests/harness.js',
   'web/js/engine.js',
-  'web/js/ai.js'
+  'web/js/ai.js',
+  'web/js/input.js'
 ];
 
 function load(rel) {

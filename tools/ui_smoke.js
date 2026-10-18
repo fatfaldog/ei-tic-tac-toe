@@ -89,6 +89,7 @@ function load(rel) {
 }
 load('web/js/engine.js');
 load('web/js/ai.js');
+load('web/js/input.js');
 load('web/js/ui.js');
 
 const K = windowStub.Krestiki;
@@ -185,6 +186,102 @@ assert($('about-text')._text === memoLines.join('\n'),
   'текст «Об авторе» совпадает с layout.json посимвольно');
 $('about-close').click();
 assert($('about-modal').hidden, 'окно «Об авторе» закрывается');
+
+// --- game-input: клавиатура, фокус, навигация, третья группа настроек ---
+
+function key(code) {
+  (documentStub._listeners.keydown || []).forEach(fn => fn({
+    code, ctrlKey: false, metaKey: false, altKey: false, preventDefault() {}
+  }));
+}
+function viewOf(i) {
+  const c = board.children[i];
+  return ['focused', 'ghost', 'invalid', 'dim'].filter(k => c.classList.contains(k)).join('+') || '-';
+}
+
+// подготовка: вернуть «Я» первым (выше включали «Комп»)
+$('cb-player-first').checked = true;
+$('cb-player-first').change();
+
+// меню с клавиатуры: F10 открывает, первый пункт подсвечен
+key('F10');
+assert($('menu-game').classList.contains('open'), 'клавиатура: F10 открывает меню');
+assert($('mi-new-game').classList.contains('kbd-active'), 'клавиатура: пункт меню подсвечен');
+// «Новая игра» через Enter
+key('Enter');
+assert(!$('menu-game').classList.contains('open'), 'клавиатура: Enter закрывает меню');
+assert(board.children.every(c => !c.classList.contains('cross') && !c.classList.contains('nought')),
+  'клавиатура: «Новая игра» из меню очищает поле');
+
+// фокус: первый ввод — центр, вид ghost (пустая, очередь игрока)
+key('ArrowUp');
+assert(viewOf(4) === 'focused+ghost', 'фокус: стрелка из ничего -> центр, призрак (ghost)');
+key('ArrowLeft');
+assert(viewOf(3) === 'focused+ghost', 'фокус: стрелка влево -> клетка 3');
+key('Digit7');
+assert(viewOf(6) === 'focused+ghost', 'фокус: цифра 7 (читающая) -> клетка 6');
+
+// hover двигает тот же фокус
+fire(board, 'mouseover', { target: board.children[2] });
+assert(viewOf(2) === 'focused+ghost', 'фокус: hover мышью двигает фокус');
+assert(!board.children[3].classList.contains('focused'), 'фокус: старая клетка освобождена');
+
+// подтверждение в фокусе: ход игрока + ответ компьютера
+const before = board.children.filter(c => c.classList.contains('cross')).length;
+key('Enter');
+assert(board.children[2].classList.contains('cross'), 'клавиатура: Enter ставит крестик в фокус');
+assert(board.children.filter(c => c.classList.contains('cross')).length === before + 1,
+  'клавиатура: ход принят ровно один');
+assert(viewOf(2) === 'focused+invalid', 'фокус: занятая клетка -> invalid (красная)');
+
+// Enter на занятой клетке ничего не делает
+const frozen = board.children.map(c => c.className).join('|');
+key('Enter');
+assert(board.children.map(c => c.className).join('|') === frozen,
+  'клавиатура: Enter на занятой клетке игнорируется');
+
+// настройки с клавиатуры: F10, вниз, Enter -> окно; навигация к «Нумпад», Space
+key('F10');
+key('ArrowDown');      // mi-settings
+key('Enter');
+assert(!$('settings-modal').hidden, 'клавиатура: меню -> «Настройки» открываются');
+assert($('cb-easy').classList.contains('kbd-active'), 'клавиатура: первый чекбокс подсвечен');
+assert(viewOf(2) === 'focused+dim', 'фокус: при открытом окне подсветка клетки тускнеет');
+key('ArrowDown'); key('ArrowDown'); key('ArrowRight'); // сетка 2x3 -> cb-numpad
+assert($('cb-numpad').classList.contains('kbd-active'), 'клавиатура: навигация по чекбоксам');
+key('Space');
+assert($('cb-numpad').checked && !$('cb-reading').checked,
+  'клавиатура: Space переключает пару раскладок');
+key('Escape');
+assert($('settings-modal').hidden, 'клавиатура: Esc закрывает настройки');
+
+// нумпадовая раскладка действует немедленно: 7 -> верхняя левая
+key('Digit7');
+assert(viewOf(0) === 'focused+ghost', 'раскладка: после «Нумпад» цифра 7 -> клетка 0');
+key('Enter');
+
+// результат партии: доигрываем кликами, Enter = «Новая игра»
+steps = 0;
+while ($('result-overlay').hidden && steps < 9) {
+  let idx = -1;
+  for (let i = 0; i < 9; i++) { if (!markAt(i)) { idx = i; break; } }
+  if (idx === -1) { break; }
+  clickBoard(idx);
+  steps++;
+}
+assert(!$('result-overlay').hidden, 'результат: партия доиграна, оверлей показан');
+key('Enter');
+assert($('result-overlay').hidden &&
+  board.children.every(c => !c.classList.contains('cross') && !c.classList.contains('nought')),
+  'клавиатура: Enter на оверлее = «Новая игра»');
+
+// «Об авторе» с клавиатуры и закрытие Esc
+key('F10');
+key('ArrowDown'); key('ArrowDown'); key('ArrowDown'); // mi-about
+key('Enter');
+assert(!$('about-modal').hidden, 'клавиатура: «Об авторе» открывается из меню');
+key('Escape');
+assert($('about-modal').hidden, 'клавиатура: Esc закрывает «Об авторе»');
 
 // «Выход»: прощальный экран + попытка закрыть вкладку
 $('mi-exit').click();

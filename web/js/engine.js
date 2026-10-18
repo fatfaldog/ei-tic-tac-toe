@@ -95,7 +95,8 @@
    */
   function Game(ai, settings) {
     this.ai = ai;
-    this.settings = { level: 'easy', first: 'player' }; // умолчания при первом запуске
+    // умолчания при первом запуске; digitLayout — раскладка клавиш 1-9 (game-input)
+    this.settings = { level: 'easy', first: 'player', digitLayout: 'reading' };
     if (settings) {
       this.applySettings(settings);
     }
@@ -110,6 +111,9 @@
       }
       if (settings.first === 'player' || settings.first === 'computer') {
         this.settings.first = settings.first;
+      }
+      if (settings.digitLayout === 'reading' || settings.digitLayout === 'numpad') {
+        this.settings.digitLayout = settings.digitLayout;
       }
     }
   };
