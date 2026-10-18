@@ -107,8 +107,19 @@ K.UI.init();
 
 const board = $('board');
 assert(board.children.length === 9, 'поле: создано 9 клеток');
-assert(board.children[4].style.left === '168px' && board.children[4].style.top === '152px',
-  'поле: координаты клетки 4 (центр) из layout.json');
+assert(board.children[4].style.left === '162px' && board.children[4].style.top === '160px',
+  'поле: регулярная сетка, клетка 4 (центр) на (162,160)');
+// все колонки и строки выровнены
+const lefts = board.children.map(c => c.style.left);
+const tops = board.children.map(c => c.style.top);
+assert(new Set([lefts[0], lefts[3], lefts[6]]).size === 1 &&
+  new Set([lefts[1], lefts[4], lefts[7]]).size === 1 &&
+  new Set([lefts[2], lefts[5], lefts[8]]).size === 1,
+  'поле: колонки клеток выровнены по X');
+assert(new Set([tops[0], tops[1], tops[2]]).size === 1 &&
+  new Set([tops[3], tops[4], tops[5]]).size === 1 &&
+  new Set([tops[6], tops[7], tops[8]]).size === 1,
+  'поле: строки клеток выровнены по Y');
 
 // ход игрока в центр: клетка получает класс cross, компьютер — nought
 const clickBoard = cellIdx => fire(board, 'click', { target: board.children[cellIdx] });
