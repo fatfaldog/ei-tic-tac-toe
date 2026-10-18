@@ -87,9 +87,10 @@ def write_png(path, rows):
 
 
 def write_ico(path, png32, png16):
-    """Многослойный .ico из PNG (Vista+ формат: PNG-слои допустимы)."""
+    """Многослойный .ico из PNG (Vista+ формат: PNG-слои допустимы).
+    Байты width/height — фактические (0 зарезервировано для 256px)."""
     def entry(size, png, offset):
-        return struct.pack('<BBBBHHII', size % 256, 0, 0, 0, 1, 32, len(png), offset)
+        return struct.pack('<BBBBHHII', size, size, 0, 0, 1, 32, len(png), offset)
 
     header = struct.pack('<HHH', 0, 1, 2)
     body = png32 + png16
