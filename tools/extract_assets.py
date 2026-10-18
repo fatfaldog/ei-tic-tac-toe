@@ -304,19 +304,22 @@ def extract_result_texts(blob):
 
 
 IMG_NAMES = {    ('TFORM1', 'Image1'): 'main-bg.jpg',
-    ('TFORM1', 'Image2'): 'cell-a-1.jpg', ('TFORM1', 'Image3'): 'cell-a-2.jpg',
-    ('TFORM1', 'Image4'): 'cell-a-3.jpg', ('TFORM1', 'Image5'): 'cell-a-4.jpg',
-    ('TFORM1', 'Image6'): 'cell-a-5.jpg', ('TFORM1', 'Image7'): 'cell-a-6.jpg',
-    ('TFORM1', 'Image8'): 'cell-a-7.jpg', ('TFORM1', 'Image9'): 'cell-a-8.jpg',
-    ('TFORM1', 'Image10'): 'cell-a-9.jpg',
-    ('TFORM1', 'Image11'): 'cell-b-1.jpg', ('TFORM1', 'Image12'): 'cell-b-2.jpg',
-    ('TFORM1', 'Image13'): 'cell-b-3.jpg', ('TFORM1', 'Image14'): 'cell-b-4.jpg',
-    ('TFORM1', 'Image15'): 'cell-b-5.jpg', ('TFORM1', 'Image16'): 'cell-b-6.jpg',
-    ('TFORM1', 'Image17'): 'cell-b-7.jpg', ('TFORM1', 'Image18'): 'cell-b-8.jpg',
-    ('TFORM1', 'Image19'): 'cell-b-9.jpg',
+    # наборы клеток: 9 компонентов DFM -> один файл на набор (change
+    # dedupe-cell-assets; в оригинале каждая клетка имела собственный TImage
+    # с той же картинкой). Остальные компоненты наборов склеиваются ниже.
+    ('TFORM1', 'Image2'): 'cell-a.jpg',    # набор A (нолики), Image2..Image10
+    ('TFORM1', 'Image11'): 'cell-b.jpg',   # набор B (крестики), Image11..Image19
     ('TSETTINGSW', 'Image1'): 'settings-bg-1.jpg',
     ('TSETTINGSW', 'Image2'): 'settings-bg-2.jpg',
     ('TABOUTAVTOR', 'Image1'): 'about-bg.jpg',
+}
+
+# компоненты DFM, склеиваемые в один файл набора (дубликаты по построению)
+IMAGE_SETS = {
+    'cell-a.jpg': ['Image2', 'Image3', 'Image4', 'Image5', 'Image6',
+                   'Image7', 'Image8', 'Image9', 'Image10'],
+    'cell-b.jpg': ['Image11', 'Image12', 'Image13', 'Image14', 'Image15',
+                   'Image16', 'Image17', 'Image18', 'Image19'],
 }
 
 
@@ -364,8 +367,13 @@ def main():
                         continue
                     path = os.path.join(OUT, 'img', out_name)
                     open(path, 'wb').write(jpg)
-                    layout['images'][out_name] = {'form': name, 'component': node['name'],
-                                                  'bytes': len(jpg)}
+                    # инвентарь: файл + склеенные компоненты набора (если набор)
+                    entry = {'form': name, 'component': node['name'],
+                             'bytes': len(jpg)}
+                    members = IMAGE_SETS.get(out_name)
+                    if members:
+                        entry['set'] = [m for m in members if m != node['name']]
+                    layout['images'][out_name] = entry
                     break
 
         # дерево формы для layout.json
@@ -434,9 +442,9 @@ def main():
     layout['cellStateMap'] = {
         'empty': {'asset': None, 'render': 'black-panel',
                   'note': 'чёрная TPanel оригинала (clBtnText, bvNone), ассет не нужен'},
-        'cross': {'asset': 'img/cell-b-1.jpg',
+        'cross': {'asset': 'img/cell-b.jpg',
                   'note': 'крестик игрока: все 9 JPEG набора B побайтово одинаковы'},
-        'nought': {'asset': 'img/cell-a-1.jpg',
+        'nought': {'asset': 'img/cell-a.jpg',
                    'note': 'нолик компьютера: все 9 JPEG набора A побайтово одинаковы'},
     }
     with open(json_path, 'w', encoding='utf-8') as f:
@@ -447,11 +455,11 @@ def main():
     n_cur_png = len([f for f in os.listdir(os.path.join(OUT, 'cursors'))
                      if f.endswith('.png')])
     print('Формы:', ', '.join(sorted(forms_raw)))
-    print('JPEG:', n_img, '(ожидалось 22)')
+    print('JPEG:', n_img, '(ожидалось 6: фон, клетка-A, клетка-B, фоны настроек x2, об авторе)')
     print('Курсоры в поставке (PNG):', n_cur_png, '(ожидался 1: ei-arrow.png)')
     print('Иконка:', os.path.getsize(os.path.join(OUT, 'icon.ico')), 'байт')
     print('layout.json:', os.path.getsize(json_path), 'байт')
-    if n_img != 22 or n_cur_png != 1:
+    if n_img != 6 or n_cur_png != 1:
         print('ОШИБКА: количество ассетов не соответствует инвентарю', file=sys.stderr)
         return 1
     return 0

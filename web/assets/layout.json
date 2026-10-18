@@ -626,95 +626,35 @@
    "component": "Image1",
    "bytes": 81641
   },
-  "cell-a-1.jpg": {
+  "cell-a.jpg": {
    "form": "TFORM1",
    "component": "Image2",
-   "bytes": 11289
+   "bytes": 11289,
+   "set": [
+    "Image3",
+    "Image4",
+    "Image5",
+    "Image6",
+    "Image7",
+    "Image8",
+    "Image9",
+    "Image10"
+   ]
   },
-  "cell-a-2.jpg": {
-   "form": "TFORM1",
-   "component": "Image3",
-   "bytes": 11289
-  },
-  "cell-a-3.jpg": {
-   "form": "TFORM1",
-   "component": "Image4",
-   "bytes": 11289
-  },
-  "cell-a-4.jpg": {
-   "form": "TFORM1",
-   "component": "Image5",
-   "bytes": 11289
-  },
-  "cell-a-5.jpg": {
-   "form": "TFORM1",
-   "component": "Image6",
-   "bytes": 11289
-  },
-  "cell-a-6.jpg": {
-   "form": "TFORM1",
-   "component": "Image7",
-   "bytes": 11289
-  },
-  "cell-a-7.jpg": {
-   "form": "TFORM1",
-   "component": "Image8",
-   "bytes": 11289
-  },
-  "cell-a-8.jpg": {
-   "form": "TFORM1",
-   "component": "Image9",
-   "bytes": 11289
-  },
-  "cell-a-9.jpg": {
-   "form": "TFORM1",
-   "component": "Image10",
-   "bytes": 11289
-  },
-  "cell-b-1.jpg": {
+  "cell-b.jpg": {
    "form": "TFORM1",
    "component": "Image11",
-   "bytes": 9677
-  },
-  "cell-b-2.jpg": {
-   "form": "TFORM1",
-   "component": "Image12",
-   "bytes": 9677
-  },
-  "cell-b-3.jpg": {
-   "form": "TFORM1",
-   "component": "Image13",
-   "bytes": 9677
-  },
-  "cell-b-4.jpg": {
-   "form": "TFORM1",
-   "component": "Image14",
-   "bytes": 9677
-  },
-  "cell-b-5.jpg": {
-   "form": "TFORM1",
-   "component": "Image15",
-   "bytes": 9677
-  },
-  "cell-b-6.jpg": {
-   "form": "TFORM1",
-   "component": "Image16",
-   "bytes": 9677
-  },
-  "cell-b-7.jpg": {
-   "form": "TFORM1",
-   "component": "Image17",
-   "bytes": 9677
-  },
-  "cell-b-8.jpg": {
-   "form": "TFORM1",
-   "component": "Image18",
-   "bytes": 9677
-  },
-  "cell-b-9.jpg": {
-   "form": "TFORM1",
-   "component": "Image19",
-   "bytes": 9677
+   "bytes": 9677,
+   "set": [
+    "Image12",
+    "Image13",
+    "Image14",
+    "Image15",
+    "Image16",
+    "Image17",
+    "Image18",
+    "Image19"
+   ]
   },
   "settings-bg-1.jpg": {
    "form": "TSETTINGSW",
@@ -1102,11 +1042,11 @@
    "note": "чёрная TPanel оригинала (clBtnText, bvNone), ассет не нужен"
   },
   "cross": {
-   "asset": "img/cell-b-1.jpg",
+   "asset": "img/cell-b.jpg",
    "note": "крестик игрока: все 9 JPEG набора B побайтово одинаковы"
   },
   "nought": {
-   "asset": "img/cell-a-1.jpg",
+   "asset": "img/cell-a.jpg",
    "note": "нолик компьютера: все 9 JPEG набора A побайтово одинаковы"
   }
  }
