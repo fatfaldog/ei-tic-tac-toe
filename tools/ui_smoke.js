@@ -87,6 +87,13 @@ windowStub.localStorage = {
 };
 // браузерный setTimeout для фоновой предзагрузки (preload-assets): сразу
 windowStub.setTimeout = (fn) => { fn(); };
+// браузерные innerWidth/innerHeight и resize (fit-to-viewport)
+windowStub.innerWidth = 1920;
+windowStub.innerHeight = 1080;
+windowStub.addEventListener = (type, fn) => {
+  (windowStub._listeners = windowStub._listeners || {})[type] =
+    (windowStub._listeners[type] || []).concat(fn);
+};
 
 global.window = windowStub;
 global.document = documentStub;
@@ -278,6 +285,21 @@ assert(!fs.existsSync(path.join(ROOT, 'web/assets/img/plate-new-game.png')) &&
   ![...K.UI.PRELOAD_CRITICAL, ...K.UI.PRELOAD_BACKGROUND]
     .some(f => f.includes('plate-new-game')),
   'plate-new-game.png удалён и в списках прогрева отсутствует');
+
+// масштабирование под экран (fit-to-viewport): формула по меньшей стороне,
+// потолок 1:1, применение transform в стабе
+assert(K.UI.fitScale(390, 844) === 0.9264, 'масштаб: телефон портрет 390x844 -> 0.9264');
+assert(K.UI.fitScale(844, 390) === 0.8744, 'масштаб: телефон ландшафт 844x390 -> 0.8744');
+assert(K.UI.fitScale(1920, 1080) === 1, 'масштаб: десктоп -> строго 1:1');
+assert(K.UI.fitScale(419, 460) === 0.9952, 'масштаб: iframe-сниппет 419x460 -> 0.9952');
+assert(K.UI.fitScale(500, 500) === 1, 'масштаб: потолок 1:1 не превышается');
+assert($('scene').style.transform === '',
+  'масштаб: при 1920x1080 transform снят (ни пикселя не меняется)');
+windowStub.innerWidth = 390;
+K.UI.applyFitScale();
+assert($('scene').style.transform === 'scale(0.9264)',
+  'масштаб: телефон портрет — сцена уменьшена до 0.9264');
+windowStub.innerWidth = 1920; // вернуть для последующих проверок
 
 // клик по строке уровня: цикл + живое превью тролля
 $('set-row-level').click();

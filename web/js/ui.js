@@ -637,9 +637,32 @@
   UI.PRELOAD_CRITICAL = PRELOAD_CRITICAL;      // доступ для тестов
   UI.PRELOAD_BACKGROUND = PRELOAD_BACKGROUND;
 
+  /* ------------------------------------ масштабирование под экран */
+  /* (fit-to-viewport): игра — фиксированные пиксели (421x446 с запасом);
+   * на узких или низких экранах (телефон, мелкий iframe) вписываем её
+   * трансформом по меньшей стороне, на больших — строго 1:1. Сцена содержит
+   * и модальные окна (fixed внутри transform-предка ездит вместе с ней). */
+  var FIT_W = 421, FIT_H = 446;
+
+  function fitScale(w, h) {
+    var s = Math.min(w / FIT_W, h / FIT_H, 1);
+    return Math.round(s * 10000) / 10000;   // округление против дрожания transform
+  }
+
+  function applyFitScale() {
+    var s = fitScale(global.innerWidth, global.innerHeight);
+    // s === 1 -> убираем transform вовсе: на десктопе ни пикселя не меняется
+    $('scene').style.transform = (s === 1) ? '' : 'scale(' + s + ')';
+  }
+
+  UI.fitScale = fitScale;          // доступ для тестов
+  UI.applyFitScale = applyFitScale;
+
   UI.init = function () {
     preloadImages(PRELOAD_CRITICAL); // первоначальное состояние — немедленно
     scheduleBackgroundPreload();     // окна — фоном, после load/idle
+    applyFitScale();
+    global.addEventListener('resize', applyFitScale);
     game = new NS.Game(NS.AI);
     game.onEvent = onGameEvent;
     var stored = loadStoredSettings();

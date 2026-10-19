@@ -16,6 +16,7 @@ html, body {
 
 .scene {
   min-height: 100vh;
+  transform-origin: center center;  /* масштабирование под экран (fit-to-viewport) */
   display: flex;
   align-items: center;
   justify-content: center;
