@@ -379,6 +379,11 @@ for (const s of ['fatfaldog', 'PPyatachok', 'ksaont', 'MorgenS',
                  'Вселенная Аллодов', 'allods.gipat.ru']) {
   assert(aboutMarkup.includes(s), 'разметка «Об авторе» содержит: ' + s);
 }
+// ссылка на репозиторий: широкий блок над about-top (about-github-link)
+const repoIdx = aboutMarkup.indexOf('https://github.com/fatfaldog/ei-tic-tac-toe/');
+assert(repoIdx !== -1 && aboutMarkup.indexOf('about-group-wide') < repoIdx &&
+  repoIdx < aboutMarkup.indexOf('class="about-top"'),
+  '«Об авторе»: блок-ссылка на репозиторий шириной в две колонки, над about-top');
 // одна плита-галочка закрывает
 $('about-ok').click();
 assert($('about-modal').hidden, 'плита-галочка закрывает окно');

@@ -507,6 +507,12 @@ html, body {
 }
 .about-top .about-group { flex: 1 1 0; max-width: 170px; text-align: center; }
 
+/* блок-ссылка на репозиторий: во всю ширину двух колонок (about-github-link) */
+.about-group-wide {
+  align-self: stretch;
+  text-align: center;
+}
+
 .about-group {
   padding: 6px 12px;
   background: rgba(10, 8, 4, .5);
