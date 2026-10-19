@@ -249,14 +249,17 @@ $('set-ok').click();
 assert(board.children.filter(c => c.classList.contains('cross') || c.classList.contains('nought')).length === 2,
   'возврат раскладки тоже не перезапустил партию');
 $('mi-about').click();
-const layout = JSON.parse(fs.readFileSync(path.join(ROOT, 'web/assets/layout.json'), 'utf8'));
-const aboutNode = layout.forms.TABOUTAVTOR.children.find(c => c.cls === 'TMemo');
-const memoLines = aboutNode.props['Lines.Strings'];
 assert(!$('about-modal').hidden, 'окно «Об авторе» открывается');
-assert($('about-text')._text === memoLines.join('\n'),
-  'текст «Об авторе» совпадает с layout.json посимвольно');
-$('about-close').click();
-assert($('about-modal').hidden, 'окно «Об авторе» закрывается');
+// текст «Об авторе» — современная редакция в разметке (redesign-about-window):
+// проверяем ключевые имена и адрес прямо в HTML (стаб DOM не парсит разметку)
+const aboutMarkup = fs.readFileSync(path.join(ROOT, 'web/index.html'), 'utf8');
+for (const s of ['fatfaldog', 'PPyatachok', 'ksaont', 'Morgens',
+                 'Вселенная Аллодов', 'allods.gipat.ru']) {
+  assert(aboutMarkup.includes(s), 'разметка «Об авторе» содержит: ' + s);
+}
+// одна плита-галочка закрывает
+$('about-ok').click();
+assert($('about-modal').hidden, 'плита-галочка закрывает окно');
 
 // --- game-input: клавиатура, фокус, навигация, третья группа настроек ---
 

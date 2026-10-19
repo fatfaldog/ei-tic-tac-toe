@@ -77,11 +77,25 @@
     </div>
   </div>
 
-  <!-- Окно «Об авторе» (TABOUTAVTOR 344x384, текст Memo из layout.json) -->
+    <!-- Окно «Об авторе» (change redesign-about-window): структурно как «Настройки» —
+       плита-заголовок (срез с references/about.png), рамка с фоном-«крысом»
+       (about-bg.jpg) и текстом, внизу одна плита-галочка -->
   <div id="about-modal" class="modal-wrap" hidden>
     <div class="modal about" role="dialog" aria-label="Об авторе">
-      <div class="modal-close" id="about-close" title="Закрыть">&#10006;</div>
-      <pre id="about-text" class="about-memo"></pre>
+      <div class="about-title">Об авторе</div>
+
+      <div class="about-frame">
+        <div class="about-line">Автор — fatfaldog</div>
+        <div class="about-line">Тестирование — PPyatachok</div>
+        <div class="about-line about-gap">Отдельная благодарность:</div>
+        <div class="about-line">ksaont, Morgens</div>
+        <div class="about-line">и проекту «Вселенная Аллодов»</div>
+        <div class="about-line about-link">allods.gipat.ru</div>
+      </div>
+
+      <div class="about-buttons">
+        <button class="plate-btn" id="about-ok" aria-label="Закрыть окно">OK</button>
+      </div>
     </div>
   </div>
 

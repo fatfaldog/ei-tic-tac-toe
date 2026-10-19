@@ -23,18 +23,19 @@
     { x: 39,  y: 273, w: 106, h: 109 }, { x: 159, y: 273, w: 106, h: 109 }, { x: 279, y: 273, w: 106, h: 109 }
   ];
 
-  /* Текст Memo «Об авторе» — сгенерировано из layout.json (TABOUTAVTOR). */
-  var ABOUT_TEXT = [
-    '          Автором данной программы является fatfaldog',
-    '          в некоторых кругах более извесный под ником yurasim',
-    '          участник Проекта: Перепись ПЗшников',
-    '          ищите этот Проект по адресу http://ei-census.eclub.lv/',
+  /* Текст «Об авторе» — современная редакция (change redesign-about-window):
+   * автор и благодарности сохранены, стилистика обновлена, мёртвая ссылка
+   * ei-census заменена проектом-наследником «Вселенная Аллодов».
+   * Текст живёт здесь, а не в layout.json — к DFM отношения не имеет. */
+  var ABOUT_LINES = [
+    'Автор — fatfaldog',
+    'Тестирование — PPyatachok',
     '',
-    '                            Отдельное спасибо:',
-    '          альфа и бета тестеру под ником PPyatachok',
-    "          а так же ksaont'y за разрешение использования его",
-    '          наработок для Переписи ПЗшников в программе'
-  ].join('\n');
+    'Отдельная благодарность:',
+    'ksaont, Morgens',
+    'и проекту «Вселенная Аллодов»',
+    'allods.gipat.ru'
+  ];
 
   /* Тексты исходов — ДОСЛОВНО из оригинального exe (литералы в .data@0x72390,
    * извлекаются в layout.json -> resultTexts; см. change restore-original-result-texts).
@@ -372,8 +373,9 @@
   /* -------------------------------------------------------- об авторе */
 
   function openAbout() {
-    $('about-text').textContent = ABOUT_TEXT;
+    // текст уже в разметке (about-line) — здесь только показ
     $('about-modal').hidden = false;
+    $('about-ok').classList.add('kbd-active');
     setContext('about');
   }
 
@@ -383,7 +385,7 @@
   }
 
   function initAbout() {
-    $('about-close').addEventListener('click', closeAbout);
+    $('about-ok').addEventListener('click', closeAbout);
     // клик по фону закрывает окно
     $('about-modal').addEventListener('click', function (e) {
       if (e.target === $('about-modal')) { closeAbout(); }
@@ -443,6 +445,8 @@
         }
         break;
       case 'about':
+        // единственная интерактивная позиция — плита-галочка (kbd-active),
+        // CONFIRM и BACK закрывают (design D4)
         if (action === 'BACK' || action === 'CONFIRM') {
           closeAbout();
         }

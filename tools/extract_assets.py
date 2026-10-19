@@ -428,7 +428,9 @@ def main():
     # --- оригинальные тексты исходов партии (change restore-original-result-texts)
     layout['resultTexts'] = extract_result_texts(blob)
 
-    json_path = os.path.join(OUT, 'layout.json')
+    # layout.json — дев-инвентарь извлечения, рантаймом не читается
+    # (file:// без fetch); живёт в корне репо, в поставку web/ не входит
+    json_path = os.path.join(REPO, 'layout.json')
     # Карта состояний клетки -> ассет (исправленная классификация):
     #  пустая клетка = чёрная TPanel (clBtnText, BevelOuter=bvNone, OnClick):
     #    по модели VCL оконная TPanel всегда рисуется НАД TImage, поэтому

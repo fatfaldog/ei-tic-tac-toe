@@ -1,5 +1,5 @@
 /* Крестики-нолики по ПЗшному — стили web-версии.
- * Все координаты и размеры — из web/assets/layout.json (геометрия форм Delphi,
+ * Все координаты и размеры — из layout.json в корне репо (геометрия форм Delphi,
  * design.md D5). Основной курсор — стрелка из игры «Проклятые Земли»,
  * вырезанная из скриншота пользователя (tools/ei_cursor_extract.py, D9).
  */
@@ -353,54 +353,75 @@ html, body {
   filter: drop-shadow(0 0 6px rgba(201, 187, 146, .8)) brightness(1.12);
 }
 
-/* Об авторе: TABOUTAVTOR 344x384 */
+/* Об авторе (change redesign-about-window): диалог структурно как «Настройки» —
+ * панель, плита-заголовок (срез с references/about.png), рамка с фоном-«крысом»
+ * (about-bg.jpg), одна плита-галочка */
 .modal.about {
-  width: 344px;
-  height: 384px;
-  background: #000 url("../assets/img/about-bg.jpg") 0 0 / 100% 100% no-repeat;
+  width: 404px;
+  height: 410px;
+  background: linear-gradient(180deg, #1a1509 0%, #14110a 40%, #0f0d07 100%);
+  border: 2px solid #4a4128;
+  outline: 1px solid #201b0e;
+  box-shadow: 0 0 24px rgba(0, 0, 0, .85), inset 0 0 30px rgba(0, 0, 0, .6);
+  padding: 0;
 }
 
-.modal-close {
-  position: absolute;
-  top: 4px; right: 6px;
-  z-index: 5;
-  color: #d8c9a3;
-  font-size: 13px;
-  padding: 2px 6px;
+/* плита-заголовок: скриншот пользователя, фон срезан альфой */
+.about-title {
+  margin: 10px auto 0;
+  width: 360px;
+  height: 58px;
+  background: url("../assets/img/plate-about.png") center / contain no-repeat;
+  text-indent: -9999px;
+  overflow: hidden;
+  user-select: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .7));
+}
+
+/* рамка с фоном-«крысом» и текстом */
+.about-frame {
+  margin: 12px 14px 0;
+  height: 230px;
+  border: 2px solid #57492a;
+  outline: 1px solid #201b0e;
+  background-color: #0a0804;
+  background-image: url("../assets/img/about-bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: inset 0 0 14px rgba(0, 0, 0, .7);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.about-line {
+  padding: 4px 14px;
+  background: rgba(10, 8, 4, .5);
+  color: #e4dcc0;
+  font-size: 14px;
   text-shadow: 0 1px 2px #000;
+  user-select: none;
 }
 
-.modal-close:hover { color: #ffe9a8; }
+.about-line.about-gap { margin-top: 10px; }
 
-
-/* TMemo «Об авторе»: прямоугольник 345x129 в позиции (0,256),
- * текст цвета clGradientInactiveCaption. Шрифт 11px/1.2 — как в оригинале
- * (Font.Height=-11): все 9 строк Memo помещаются; при отличающихся
- * системных шрифтах длинные строки переносятся, а блок прокручивается. */
-.about-memo {
-  position: absolute;
-  left: 0; top: 256px;
-  width: 345px; height: 129px;
-  margin: 0;
-  padding: 5px 4px;
-  box-sizing: border-box;
-  background: rgba(0, 0, 0, .55);
-  color: #b8d0d8;            /* clGradientInactiveCaption */
-  font: 11px/1.2 Tahoma, "MS Sans Serif", sans-serif;
-  white-space: pre-wrap;
-  overflow-x: hidden;
-  overflow-y: auto;
+.about-line.about-link {
+  margin-top: 6px;
+  color: #ffe9a8;
+  letter-spacing: 1px;
 }
 
-.about-memo::-webkit-scrollbar {
-  width: 10px;
+/* единственная плита-галочка */
+.about-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
 }
 
-.about-memo::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, .5);
-}
-
-.about-memo::-webkit-scrollbar-thumb {
-  background: #4a4128;
-  border: 1px solid #201b0e;
+#about-ok {
+  width: 130px;
+  height: 61px;
+  background-image: url("../assets/img/plate-confirm.png");
 }
