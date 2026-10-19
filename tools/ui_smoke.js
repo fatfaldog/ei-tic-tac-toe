@@ -170,20 +170,23 @@ const overlay = $('result-overlay');
 const overlayShown = !overlay.hidden;
 const text = $('result-text').innerHTML;
 assert(overlayShown, 'по завершении партии показан оверлей результата');
-// окно результата в стиле диалогов + плита «Новая игра» (new-game-plate)
+// окно результата в стиле диалогов: вопрос и плиты-галочка/крестик (new-game-plate)
 const gameMarkup = fs.readFileSync(path.join(ROOT, 'web/index.html'), 'utf8');
 assert(gameMarkup.includes('class="modal result"') &&
   gameMarkup.includes('class="result-title"') &&
   gameMarkup.includes('class="result-frame"'),
   'окно результата: плита-заголовок, рамка, структура как у диалогов');
-assert(gameMarkup.includes('id="result-new-game" class="plate-btn"') &&
-  gameMarkup.includes('aria-label="Новая игра"'),
-  'оверлей: «Новая игра» — плита (plate-btn) с aria-label');
+assert(gameMarkup.includes('Сыграем ещё?') &&
+  gameMarkup.includes('id="result-new-game" class="plate-btn"') &&
+  gameMarkup.includes('aria-label="Сыграем ещё"') &&
+  gameMarkup.includes('id="result-close" class="plate-btn"'),
+  'окно результата: вопрос «Сыграем ещё?», плиты-галочка и крестик');
 assert(fs.existsSync(path.join(ROOT, 'web/assets/img/plate-result.png')),
   'ассет plate-result.png сгенерирован');
 const gameCss = fs.readFileSync(path.join(ROOT, 'web/css/style.css'), 'utf8');
-assert(/#result-new-game\s*\{[^}]*plate-confirm\.png/s.test(gameCss),
-  'плита-галочка: result-new-game использует plate-confirm.png (правка приёмки)');
+assert(/#result-new-game\s*\{[^}]*plate-confirm\.png/s.test(gameCss) &&
+  /#result-close\s*\{[^}]*plate-cancel\.png/s.test(gameCss),
+  'плиты результата: галочка confirm, крестик cancel (правка приёмки)');
 // тексты исходов — дословно оригинальные (change restore-original-result-texts)
 assert(K.UI.RESULT_TEXTS.playerWon === 'Вы выиграли. ПоЗдравляю!!!!!',
   'текст победы игрока дословный (ПоЗдравляю с ПЗ)');
@@ -195,7 +198,39 @@ assert(text === K.UI.RESULT_TEXTS.computerWon || text === K.UI.RESULT_TEXTS.play
   text === K.UI.RESULT_TEXTS.draw,
   'оверлей показывает один из оригинальных текстов: ' + JSON.stringify(text));
 
-// «Новая игра» из оверлея: поле очищается, оверлей скрывается
+// доигрываем до оверлея (используется и ниже)
+const playToEnd = () => {
+  let s = 0;
+  while ($('result-overlay').hidden && s < 9) {
+    let idx = -1;
+    for (let i = 0; i < 9; i++) { if (!markAt(i)) { idx = i; break; } }
+    if (idx === -1) { break; }
+    clickBoard(idx);
+    s++;
+  }
+};
+const marksOnBoard = () =>
+  board.children.filter(c => c.classList.contains('cross') || c.classList.contains('nought')).length;
+
+// крестик закрывает окно результата, не начиная партию (правка приёмки)
+const marksAtOverlay = marksOnBoard();
+assert(marksAtOverlay > 0, 'подготовка: партия доиграна, на поле есть знаки');
+fire($('result-close'), 'click', { target: $('result-close') });
+assert($('result-overlay').hidden, 'крестик закрывает окно результата');
+assert(marksOnBoard() === marksAtOverlay, 'крестик не начинает новую партию');
+
+// клик по фону (вне модального окна) — то же, что крестик
+$('mi-new-game').click();
+playToEnd();
+assert(!$('result-overlay').hidden, 'подготовка: оверлей снова показан');
+const marksBeforeBg = marksOnBoard();
+fire(overlay, 'click', { target: overlay });
+assert($('result-overlay').hidden, 'клик по фону закрывает окно (как крестик)');
+assert(marksOnBoard() === marksBeforeBg, 'клик по фону не начинает новую партию');
+
+// галочка «Сыграем ещё?» — новая партия: поле очищается, оверлей скрывается
+$('mi-new-game').click();
+playToEnd();
 fire($('result-new-game'), 'click', { target: $('result-new-game') });
 const cleared = board.children.every(c => !c.classList.contains('cross') && !c.classList.contains('nought'));
 assert(cleared && overlay.hidden, '«Новая игра» очищает поле и скрывает оверлей');
@@ -417,20 +452,19 @@ key('Digit7');
 assert(viewOf(0) === 'focused+ghost', 'раскладка: после OK «Нумпад» цифра 7 -> клетка 0');
 key('Enter');
 
-// результат партии: доигрываем кликами, Enter = «Новая игра»
-steps = 0;
-while ($('result-overlay').hidden && steps < 9) {
-  let idx = -1;
-  for (let i = 0; i < 9; i++) { if (!markAt(i)) { idx = i; break; } }
-  if (idx === -1) { break; }
-  clickBoard(idx);
-  steps++;
-}
+// результат партии: доигрываем кликами; Esc = крестик, Enter = галочка
+playToEnd();
 assert(!$('result-overlay').hidden, 'результат: партия доиграна, оверлей показан');
+key('Escape');
+const marksBeforeEsc = marksOnBoard();
+assert($('result-overlay').hidden, 'клавиатура: Esc закрывает окно результата');
+assert(marksOnBoard() === marksBeforeEsc, 'Esc не начинает новую партию');
+$('mi-new-game').click();
+playToEnd();
 key('Enter');
 assert($('result-overlay').hidden &&
   board.children.every(c => !c.classList.contains('cross') && !c.classList.contains('nought')),
-  'клавиатура: Enter на оверлее = «Новая игра»');
+  'клавиатура: Enter = плита-галочка «Сыграем ещё?»');
 
 // «Об авторе» с клавиатуры и закрытие Esc
 key('F10');

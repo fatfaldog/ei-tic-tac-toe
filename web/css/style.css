@@ -250,13 +250,6 @@ html, body {
 
 .stone-btn:hover { background: #3a3220; color: #ffe9a8; }
 
-/* плита-галочка в окне результата (правка приёмки): та же, что OK в
- * «Настройках»/«Об авторе»; размер и ховер — стандартные из .plate-btn */
-#result-new-game {
-  margin-top: 14px;
-  background-image: url("../assets/img/plate-confirm.png");
-}
-
 /* Окно результата: структурно как «Настройки»/«Об авторе» (правка приёмки) —
  * плита-заголовок «Результат», рамка с текстом исхода, плита «Новая игра» */
 .modal.result {
@@ -294,6 +287,32 @@ html, body {
 }
 
 .result-frame .panel-text { margin-bottom: 0; }
+
+/* вопрос «Сыграем ещё?» — одной строкой, с отступом от текста исхода */
+.result-question {
+  margin-top: 14px;
+  color: #ffe9a8;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px #000;
+}
+
+/* плиты-галочка и крестик (правка приёмки): галочка — новая партия,
+ * крестик — закрыть окно; клик по фону оверлея = крестик (в ui.js) */
+.result-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 24px;
+  margin-top: 14px;
+}
+
+#result-new-game {
+  background-image: url("../assets/img/plate-confirm.png");
+}
+
+#result-close {
+  background-image: url("../assets/img/plate-cancel.png");
+}
 
 /* -------------------------------------------------------- модальные окна */
 

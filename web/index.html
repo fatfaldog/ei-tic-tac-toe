@@ -33,14 +33,19 @@
       <div id="board"></div>
 
       <!-- Оверлей результата партии: окно в стиле диалогов ПЗ (new-game-plate) —
-            плита-заголовок «Результат», рамка с текстом, плита «Новая игра» -->
+            плита-заголовок «Результат», рамка с текстом и вопросом «Сыграем ещё?»,
+            внизу плиты-галочка (новая партия) и крестик (закрыть) -->
       <div id="result-overlay" class="overlay" hidden>
         <div class="modal result" role="dialog" aria-label="Результат партии">
           <div class="result-title">Результат</div>
           <div class="result-frame">
             <div id="result-text" class="panel-text"></div>
+            <div class="result-question">Сыграем ещё?</div>
           </div>
-          <button id="result-new-game" class="plate-btn" aria-label="Новая игра">Новая игра</button>
+          <div class="result-buttons">
+            <button id="result-new-game" class="plate-btn" aria-label="Сыграем ещё">Сыграем ещё</button>
+            <button id="result-close" class="plate-btn" aria-label="Закрыть окно результата">Закрыть</button>
+          </div>
         </div>
       </div>
 

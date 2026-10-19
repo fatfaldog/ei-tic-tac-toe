@@ -211,6 +211,13 @@
     setContext('result');
   }
 
+  /** Закрыть окно результата без новой партии — крестик, Esc/B
+   *  или клик по фону вне модального окна (правка приёмки). */
+  function closeResult() {
+    $('result-overlay').hidden = true;
+    setContext('board'); // доска завершённой партии, мышь откроет меню
+  }
+
   function hideResult() {
     $('result-overlay').hidden = true;
     setContext('board');
@@ -297,6 +304,11 @@
     $('mi-about').addEventListener('click', openAbout);
 
     $('result-new-game').addEventListener('click', newGame);
+    $('result-close').addEventListener('click', closeResult);
+    // клик по фону оверлея (вне модального окна) — то же, что крестик
+    $('result-overlay').addEventListener('click', function (e) {
+      if (e.target === $('result-overlay')) { closeResult(); }
+    });
   }
 
   /** «Выход»: закрыть вкладку, если браузер разрешает; иначе — прощальный экран. */
@@ -523,10 +535,9 @@
         break;
       case 'result':
         if (action === 'CONFIRM') {
-          newGame();
+          newGame();          // Enter/A = плита-галочка «Сыграем ещё?»
         } else if (action === 'BACK') {
-          $('result-overlay').hidden = true;
-          setContext('board'); // доска завершённой партии, мышь откроет меню
+          closeResult();      // Esc/B = крестик
         }
         break;
       case 'farewell':
