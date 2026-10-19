@@ -517,17 +517,17 @@ assert(sb() === 'Статус: ваш ход', 'темп: старт — «ва�
 windowStub.deferTimers = true;
 clickBoard(0); // ход игрока: крестик сразу, компьютер в очередь
 assert(board.children[0].classList.contains('cross'), 'темп: знак игрока рисуется сразу');
-assert(sb() === 'Статус: думаю…', 'темп: после хода — «думаю…»');
+assert(sb() === 'Статус: рисую', 'темп: после хода — сразу «рисую» (думанье убрано)');
 fire(board, 'mouseover', { target: board.children[0] }); // фокус на клетке с крестиком
 assert(viewOf(0) === '-',
-  'темп: во время «думаю…» свечение фокуса погашено (без dim-шума)');
+  'темп: во время «рисую» свечение фокуса погашено (без dim-шума)');
 clickBoard(2); // ввод заперт
 assert(!board.children[2].classList.contains('cross') &&
   !board.children[2].classList.contains('nought') &&
   board.children.filter(c => c.classList.contains('nought')).length === 0,
-  'темп: ввод заперт на «думаю…», партия не меняется');
-windowStub.flushTimers(); // 2с: «рисую» + знак компьютера
-assert(sb() === 'Статус: рисую', 'темп: после «думаю…» — «рисую»');
+  'темп: ввод заперт на «рисую», партия не меняется');
+windowStub.flushTimers(); // дорисовался крестик: знак компьютера
+assert(sb() === 'Статус: рисую', 'темп: статус остаётся «рисую» до конца обмена');
 const compIdx = board.children.findIndex(c => c.classList.contains('nought'));
 assert(compIdx !== -1 && board.children[compIdx].classList.contains('draw-in'),
   'темп: знак компьютера проявляется (draw-in)');
@@ -558,7 +558,7 @@ assert(sb() === 'Статус: ваш ход', 'темп: новая игра �
 // отмена темпа новой игрой на «думаю…»
 windowStub.deferTimers = true;
 clickBoard(4);
-assert(sb() === 'Статус: думаю…');
+assert(sb() === 'Статус: рисую');
 $('mi-new-game').click(); // гасит незавершённое
 windowStub.flushTimers(); windowStub.flushTimers();
 assert(sb() === 'Статус: ваш ход' &&
@@ -572,7 +572,7 @@ $('set-row-first').click();           // -> Комп
 $('set-ok').click();                  // геймплейная смена -> новая партия
 windowStub.deferTimers = true;
 $('mi-new-game').click();             // чистый прогон первого хода с темпом
-assert(sb() === 'Статус: думаю…', 'темп: «Комп» первым — сразу «думаю…»');
+assert(sb() === 'Статус: рисую', 'темп: «Комп» первым — сразу «рисую»');
 assert(board.children.every(c => !c.classList.contains('cross') && !c.classList.contains('nought')),
   'темп: первый ход компьютера ещё не нарисован');
 windowStub.flushTimers();

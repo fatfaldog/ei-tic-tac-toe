@@ -144,14 +144,12 @@
    *  партии движок сам игнорирует не-очередь/занятость. */
   /* ------------------------------------ строка состояния и темп */
   /* (turn-pacing): движок синхронен, темп живёт в UI-очереди. Ход игрока
-   * рисуется сразу (fadein), ход компьютера ждёт THINK_MS «думаю…», затем
-   * рисуется DRAW_MS («рисую»); ввод заперт visualLock'ом — движок не
-   * вызывается, рассинхрона нет by construction. */
-  var THINK_MS = 2000;
+   * рисуется сразу (fadein 1с), знак компьютера — последовательно за ним
+   * (правка приёмки: искусственное «думанье» убрано — анимаций достаточно);
+   * ввод заперт visualLock'ом — движок не вызывается, рассинхрона нет. */
   var DRAW_MS = 1000;
   var STATUS_TEXTS = {
     your: 'Статус: ваш ход',
-    think: 'Статус: думаю…',
     draw: 'Статус: рисую'
   };
   var pacingTimers = [];      // иды активных таймеров темпа
@@ -297,16 +295,17 @@
       renderAllCells();
       hideResult();
       focusCell = null; // новая партия — фокус сбрасывается
-      renderStatus(game.settings.first === 'computer' ? 'think' : 'your');
+      renderStatus(game.settings.first === 'computer' ? 'draw' : 'your');
     } else if (event === 'move') {
       if (data.side === 'player') {
-        visualLock = true;                 // на всю визуализацию ответа
+        visualLock = true;                 // на всю визуализацию обмена
         renderCell(data.index, true);      // знак игрока рисуется сразу
-        renderStatus('think');
+        renderStatus('draw');
       } else {
         visualLock = true;                 // первый ход компьютера — тоже темп
         pendingComputer = { index: data.index };
-        addTimer(showComputerMove, THINK_MS);
+        // знак компьютера — после дорисовки знака игрока (последовательно)
+        addTimer(showComputerMove, DRAW_MS);
       }
     } else if (event === 'gameover') {
       pendingResult = data.status;
@@ -801,8 +800,7 @@
 
   UI.fitScale = fitScale;          // доступ для тестов
   UI.applyFitScale = applyFitScale;
-  UI.THINK_MS = THINK_MS;          // темп (turn-pacing): доступ для тестов
-  UI.DRAW_MS = DRAW_MS;
+  UI.DRAW_MS = DRAW_MS;             // темп (turn-pacing): доступ для тестов
 
   UI.init = function () {
     preloadImages(PRELOAD_CRITICAL); // первоначальное состояние — немедленно
