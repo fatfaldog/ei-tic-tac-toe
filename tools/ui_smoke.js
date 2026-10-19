@@ -285,6 +285,7 @@ assert($('set-val-level').innerHTML === 'Легкий' &&
   $('set-val-first').innerHTML === 'Я' &&
   $('set-val-show-digits').innerHTML === 'Да' &&
   $('set-val-animate').innerHTML === 'Вкл' &&
+  $('set-val-status').innerHTML === 'Вкл' &&
   $('set-val-layout').innerHTML === 'Нативный', 'строки показывают текущие значения');
 // группы «Геймплей» и «Управление с клавиатуры»: заголовки в разметке и неинтерактивны
 // (стаб DOM их не касается — проверяем исходный HTML, как для «Об авторе»)
@@ -300,6 +301,9 @@ assert(!settingsMarkup.includes('Управление с клавиатуры') 
   settingsMarkup.includes('id="set-row-animate"') &&
   settingsMarkup.indexOf('id="set-row-animate"') < settingsMarkup.indexOf('id="set-group-kbd"'),
   'разметка: «Анимация» в группе «Графика», до «Управления»');
+assert(settingsMarkup.includes('id="set-row-status"') &&
+  settingsMarkup.indexOf('id="set-row-status"') < settingsMarkup.indexOf('id="set-group-kbd"'),
+  'разметка: строка «Статус» в группе «Графика» (правка приёмки)');
 assert(/settings-frame[^{]*{[^}]*overflow-y:\s*auto/s.test(gameCss),
   'разметка: рамка настроек прокручивается (overflow-y)');
 assert($('set-group-game').getAttribute('tabindex') === null &&
@@ -371,8 +375,8 @@ assert(savedJson !== null, 'хранение: OK записал настройк
 const saved = JSON.parse(savedJson);
 assert(saved.level === 'hard' && saved.first === 'computer' &&
   saved.digitLayout === 'numpad' && saved.showDigits === true &&
-  saved.animate === true,
-  'хранение: применённые значения (Тяжелый/Комп/Нумпад/Да/Вкл)');
+  saved.animate === true && saved.statusBar === true,
+  'хранение: применённые значения (Тяжелый/Комп/Нумпад/Да/Вкл/Вкл)');
 const loadedBack = K.UI.loadStoredSettings();
 assert(loadedBack && loadedBack.level === 'hard' && loadedBack.digitLayout === 'numpad',
   'хранение: loadStoredSettings читает сохранённое');
@@ -620,9 +624,22 @@ assert(offIdx !== -1 && !board.children[offIdx].classList.contains('draw-in') &&
 windowStub.deferTimers = false;
 $('mi-settings').click();
 $('set-row-animate').click();           // Выкл -> Вкл (умолчание для следующих секций)
+$('set-row-status').click();            // и «Статус»: Выкл — полоса скрыта
+$('set-ok').click();
+assert($('status-bar').style.display === 'none', 'статус: Выкл скрывает полосу под полем');
+$('mi-new-game').click();
+windowStub.deferTimers = true;
+clickBoard(3);                          // обмен без полосы: темп жив, играется
+windowStub.flushTimers(); windowStub.flushTimers(); windowStub.flushTimers();
+assert(sb() === 'Статус: Ваш ход. Жду...' && board.children.some(c => c.classList.contains('nought')),
+  'статус: скрытая полоса не ломает темп и партию');
+windowStub.deferTimers = false;
+$('mi-settings').click();
+$('set-row-status').click();            // Выкл -> Вкл
 $('set-ok').click();
 $('mi-new-game').click();
-assert(sb() === 'Статус: Ваш ход. Жду...', 'выкл/вкл: возврат к анимации — «Жду...»');
+assert($('status-bar').style.display === '' && sb() === 'Статус: Ваш ход. Жду...',
+  'выкл/вкл: возврат к анимации и полосе — «Жду...»');
 // восстановить фокус клетки 2, на который опираются следующие секции
 fire(board, 'mouseover', { target: board.children[2] });
 
@@ -672,6 +689,12 @@ key('Space');                          // -> Выкл
 assert($('set-val-animate').innerHTML === 'Выкл', 'клавиатура: Space циклит анимацию');
 key('Space');                          // обратно Вкл (Esc-сценарий ниже ждёт умолчания)
 assert($('set-val-animate').innerHTML === 'Вкл', 'клавиатура: повторный Space возвращает Вкл');
+key('ArrowDown');                      // -> set-row-status
+assert($('set-row-status').classList.contains('kbd-active'), 'клавиатура: дошла до «Статуса»');
+key('Space');
+assert($('set-val-status').innerHTML === 'Выкл', 'клавиатура: Space циклит статус-строку');
+key('Space');
+assert($('set-val-status').innerHTML === 'Вкл', 'клавиатура: статус обратно Вкл');
 key('ArrowDown');                      // -> set-row-layout
 assert($('set-row-layout').classList.contains('kbd-active'), 'клавиатура: дошла до «Порядка нумерации»');
 key('Space');                          // -> Нумпад
@@ -685,11 +708,11 @@ $('mi-settings').click();
 assert($('set-val-layout').innerHTML === 'Нативный' && $('set-val-level').innerHTML === 'Легкий' &&
   $('set-val-show-digits').innerHTML === 'Да',
   'клавиатура: Esc отбросил изменения');
-// применить «Нумпад» через плиту OK с клавиатуры: вниз до порядка (4),
-// цикл, затем до плиты OK (позиция 5)
-key('ArrowDown'); key('ArrowDown'); key('ArrowDown'); key('ArrowDown');
+// применить «Нумпад» через плиту OK с клавиатуры: вниз до порядка (5),
+// цикл, затем до плиты OK (позиция 6)
+key('ArrowDown'); key('ArrowDown'); key('ArrowDown'); key('ArrowDown'); key('ArrowDown');
 key('Space');                                                 // порядок -> Нумпад
-key('ArrowDown');                                             // -> плита OK (позиция 5)
+key('ArrowDown');                                             // -> плита OK (позиция 6)
 assert($('set-ok').classList.contains('kbd-active'), 'клавиатура: фокус дошёл до плиты OK');
 key('Enter');
 assert($('settings-modal').hidden, 'клавиатура: Enter на плите OK применяет и закрывает');

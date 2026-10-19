@@ -181,6 +181,11 @@
     $('status-bar').innerHTML = STATUS_TEXTS[key];
   }
 
+  /** Полоса состояния видима? («Статус» Вкл/Выкл — settings-graphics-group) */
+  function renderStatusBar() {
+    $('status-bar').style.display = game.settings.statusBar === false ? 'none' : '';
+  }
+
   function reducedMotion() {
     return !!(global.matchMedia &&
       global.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -454,12 +459,13 @@
   /* Диалог-список с черновиком (change redesign-settings-window):
    * открытие копирует настройки; циклы меняют черновик (и фон-существо рамки —
    * живое превью); плита галочки применяет, крестик/Esc/B отбрасывают. */
-  var SETTING_KEYS = ['level', 'first', 'showDigits', 'animate', 'digitLayout'];
+  var SETTING_KEYS = ['level', 'first', 'showDigits', 'animate', 'statusBar', 'digitLayout'];
   var SETTING_LABELS = {
     level: { easy: 'Легкий', hard: 'Тяжелый' },
     first: { player: 'Я', computer: 'Комп' },
     showDigits: { true: 'Да', false: 'Нет' },
     animate: { true: 'Вкл', false: 'Выкл' },
+    statusBar: { true: 'Вкл', false: 'Выкл' },
     digitLayout: { reading: 'Нативный', numpad: 'Нумпад' }
   };
   var SETTING_VALUE_IDS = {
@@ -467,9 +473,10 @@
     first: 'set-val-first',
     showDigits: 'set-val-show-digits',
     animate: 'set-val-animate',
+    statusBar: 'set-val-status',
     digitLayout: 'set-val-layout'
   };
-  var SETTING_ROW_IDS = ['set-row-level', 'set-row-first', 'set-row-show-digits', 'set-row-animate', 'set-row-layout'];
+  var SETTING_ROW_IDS = ['set-row-level', 'set-row-first', 'set-row-show-digits', 'set-row-animate', 'set-row-status', 'set-row-layout'];
   var settingsDraft = null;
   var settingsPos = 0;   // 0..2 — строки, 3 — плита OK, 4 — плита X
 
@@ -496,8 +503,8 @@
     }
     $('set-ok').classList.remove('kbd-active');
     $('set-cancel').classList.remove('kbd-active');
-    if (settingsPos === 5) { $('set-ok').classList.add('kbd-active'); }
-    if (settingsPos === 6) { $('set-cancel').classList.add('kbd-active'); }
+    if (settingsPos === 6) { $('set-ok').classList.add('kbd-active'); }
+    if (settingsPos === 7) { $('set-cancel').classList.add('kbd-active'); }
   }
 
   function cycleSetting(key) {
@@ -509,6 +516,7 @@
     if (key === 'first') { d.first = d.first === 'player' ? 'computer' : 'player'; }
     if (key === 'showDigits') { d.showDigits = !d.showDigits; }
     if (key === 'animate') { d.animate = !d.animate; }
+    if (key === 'statusBar') { d.statusBar = !d.statusBar; }
     if (key === 'digitLayout') {
       d.digitLayout = d.digitLayout === 'reading' ? 'numpad' : 'reading';
     }
@@ -529,6 +537,7 @@
       first: game.settings.first,
       showDigits: game.settings.showDigits,
       animate: game.settings.animate,
+      statusBar: game.settings.statusBar,
       digitLayout: game.settings.digitLayout
     };
     settingsPos = 0;
@@ -574,7 +583,8 @@
         first: settings.first,
         digitLayout: settings.digitLayout,
         showDigits: settings.showDigits,
-        animate: settings.animate
+        animate: settings.animate,
+        statusBar: settings.statusBar
       }));
     } catch (e) {
       /* недоступно — молча: настройки действуют в пределах сессии */
@@ -590,6 +600,7 @@
     game.applySettings(settingsDraft); // раскладка действует немедленно
     saveStoredSettings(game.settings); // применённое — в хранилище (persist-settings)
     renderDigits();                    // и номера клеток — тоже (cell-number-hints)
+    renderStatusBar();                 // и полоса состояния (settings-graphics-group)
     closeSettings();
     if (gameplayChanged) {
       newGame(); // геймплейные настройки — сразу новой партией (design D1)
@@ -608,10 +619,10 @@
       });
     });
     $('set-ok').addEventListener('focus', function () {
-      if (settingsDraft) { settingsPos = 5; renderSettings(); }
+      if (settingsDraft) { settingsPos = 6; renderSettings(); }
     });
     $('set-cancel').addEventListener('focus', function () {
-      if (settingsDraft) { settingsPos = 6; renderSettings(); }
+      if (settingsDraft) { settingsPos = 7; renderSettings(); }
     });
     SETTING_ROW_IDS.forEach(function (rowId, i) {
       $(rowId).addEventListener('click', function () {
@@ -685,12 +696,12 @@
       case 'settings':
         if (action === 'UP' && settingsPos > 0) {
           settingsPos--; renderSettings();
-        } else if (action === 'DOWN' && settingsPos < 6) {
+        } else if (action === 'DOWN' && settingsPos < 7) {
           settingsPos++; renderSettings();
         } else if (action === 'CONFIRM') {
-          if (settingsPos < 5) {
+          if (settingsPos < 6) {
             cycleSetting(SETTING_KEYS[settingsPos]);
-          } else if (settingsPos === 5) {
+          } else if (settingsPos === 6) {
             applySettingsOk();
           } else {
             closeSettings();
@@ -857,6 +868,7 @@
     if (stored) {
       game.applySettings(stored); // валидация движком; до buildBoard и первой партии
     }
+    renderStatusBar(); // сохранённое «Статус: Выкл» скрывает полосу и при старте
     buildBoard();
     initMenu();
     initSettings();
