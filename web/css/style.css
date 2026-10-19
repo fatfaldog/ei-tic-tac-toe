@@ -400,13 +400,8 @@ html, body {
   box-sizing: border-box;
 }
 
-.about-col { display: flex; flex-direction: column; gap: 10px; max-width: 52%; }
+.about-col { display: flex; flex-direction: column; gap: 12px; }
 .about-col-right { text-align: right; }
-
-.about-group {
-  padding: 5px 10px;
-  background: rgba(10, 8, 4, .45);
-}
 
 .about-role {
   color: #9a8f6b;
@@ -414,19 +409,17 @@ html, body {
   letter-spacing: 2px;
   text-transform: uppercase;
   text-shadow: 0 1px 2px #000;
+  margin-bottom: 2px;
 }
 
 .about-name {
   color: #e4dcc0;
   font-size: 14px;
-  text-shadow: 0 1px 2px #000;
-  margin-top: 2px;
+  line-height: 1.5;
+  text-shadow: 0 1px 2px #000, 0 0 6px #000;
 }
 
 .about-name .about-link { white-space: nowrap; }
-
-/* длинная строка со ссылкой: перенос до/после кавычек, сама ссылка цельная */
-.about-name-link { max-width: 190px; margin-left: auto; }
 
 .about-sep { display: none; }
 

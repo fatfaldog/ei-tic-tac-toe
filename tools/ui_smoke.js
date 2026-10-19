@@ -253,7 +253,7 @@ assert(!$('about-modal').hidden, 'окно «Об авторе» открыва�
 // текст «Об авторе» — современная редакция в разметке (redesign-about-window):
 // проверяем ключевые имена и адрес прямо в HTML (стаб DOM не парсит разметку)
 const aboutMarkup = fs.readFileSync(path.join(ROOT, 'web/index.html'), 'utf8');
-for (const s of ['fatfaldog', 'PPyatachok', 'ksaont', 'Morgens',
+for (const s of ['fatfaldog', 'PPyatachok', 'ksaont', 'MorgenS',
                  'Вселенная Аллодов', 'allods.gipat.ru']) {
   assert(aboutMarkup.includes(s), 'разметка «Об авторе» содержит: ' + s);
 }
