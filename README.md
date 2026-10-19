@@ -12,7 +12,10 @@ Islands). Оригинал был написан на Delphi, исходники
 - можно выбрать, кто ходит первым — вы («Я») или компьютер («Комп»).
 
 **Играть онлайн:** <https://fatfaldog.github.io/ei-tic-tac-toe/>
-(адрес начнёт отвечать после включения GitHub Pages — см. ниже).
+
+Кроме классики из оригинала: номера клеток на поле подсказывают клавиши 1–9,
+настройки сохраняются в localStorage между сессиями, а результат партии
+показывается диалогом «Сыграем ещё?» в стиле «Проклятых Земель».
 
 ## Локальный запуск
 
@@ -20,6 +23,9 @@ Islands). Оригинал был написан на Delphi, исходники
 игра полностью автономна и работает даже с диска (`file://`).
 
 ## Включение GitHub Pages (один раз)
+
+> Для этого репозитория шаг уже выполнен — раздел оставлен как справочный,
+> на случай пересоздания окружения.
 
 Публикацией управляет воркфлоу [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml):
 при пуше в `main` он выкладывает содержимое `web/` (без тестовых страниц
@@ -89,13 +95,18 @@ curl -s -o /dev/null -w '%{http_code}\n' https://fatfaldog.github.io/ei-tic-tac-
 ```
 web/            игра: index.html, css/, js/, assets/ (графика из exe), tests/
 old_compiled/   исходный Krestiki.exe и DLL (только чтение, в публикацию не входит)
-tools/          скрипты извлечения ассетов из exe и прогона тестов
+references/     исходники-скриншоты плит и диалогов — рабочий материал нарезки
+tools/          извлечение ассетов из exe, нарезка плит из references/, прогоны тестов
 openspec/       спецификации и история изменений (OpenSpec)
+.github/        воркфлоу деплоя на GitHub Pages
+layout.json     дев-инвентарь координат и размеров, извлечённых из exe
+LICENSE         лицензия MIT
 ```
 
 Тесты: `node tools/run_tests.js web/tests/engine-tests.js web/tests/ai-tests.js web/tests/input-tests.js`
-(43 проверки логики), `node tools/ui_smoke.js` (99 проверок интерфейса);
-в браузере — `web/tests/engine-tests.html` и `web/tests/ai-tests.html`.
+(43 проверки логики), `node tools/ui_smoke.js` (106 проверок интерфейса);
+в браузере — `web/tests/engine-tests.html`, `web/tests/ai-tests.html` и
+`web/tests/input-tests.html`.
 
 ## Лицензия
 
