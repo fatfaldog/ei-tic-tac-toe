@@ -57,7 +57,7 @@
   /* ------------------------------------------------------------ фокус */
 
   var focusCell = null;        // 0..8 | null — единый фокус клетки (мышь+клавиатура)
-  var uiContext = 'board';     // board | menu | settings | about | result | farewell
+  var uiContext = 'board';     // board | menu | settings | about | result
 
   /** Чистая функция вида фокуса (design.md D3):
    *  ghost / ghost-nought — пустая клетка в очередь игрока (призрак текущего
@@ -237,7 +237,7 @@
 
   /* ------------------------------------------------------------- меню */
 
-  var MENU_ITEMS = ['mi-new-game', 'mi-settings', 'mi-exit', 'mi-about'];
+  var MENU_ITEMS = ['mi-new-game', 'mi-settings', 'mi-about'];
   var menuIndex = 0;
 
   function menuOpen() {
@@ -309,10 +309,6 @@
       closeMenu();
       openSettings();
     });
-    $('mi-exit').addEventListener('click', function () {
-      closeMenu();
-      exitGame();
-    });
     $('mi-about').addEventListener('click', openAbout);
 
     $('result-new-game').addEventListener('click', newGame);
@@ -321,13 +317,6 @@
     $('result-overlay').addEventListener('click', function (e) {
       if (e.target === $('result-overlay')) { closeResult(); }
     });
-  }
-
-  /** «Выход»: закрыть вкладку, если браузер разрешает; иначе — прощальный экран. */
-  function exitGame() {
-    $('farewell').hidden = false;
-    setContext('farewell');
-    window.close();
   }
 
   /* ------------------------------------------------------- настройки */
@@ -552,8 +541,6 @@
           closeResult();      // Esc/B = крестик
         }
         break;
-      case 'farewell':
-        break; // сессия завершена
     }
   }
 

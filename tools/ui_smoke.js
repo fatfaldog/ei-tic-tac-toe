@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* Смоук-тест UI-слоя (web/js/ui.js) на минимальном DOM-стабе, без браузера.
  * Проверяет: создание поля, обработку ходов, оверлей результата, меню,
- * настройки (взаимоисключающие пары), «Об авторе», «Выход».
+ * настройки (взаимоисключающие пары), «Об авторе».
  * Запуск: node tools/ui_smoke.js
  */
 'use strict';
@@ -76,10 +76,7 @@ const documentStub = {
   }
 };
 
-let windowClosed = false;
-const windowStub = {
-  close() { windowClosed = true; }
-};
+const windowStub = {};   // window.close() больше не используется (remove-exit-menu-item)
 
 global.window = windowStub;
 global.document = documentStub;
@@ -472,7 +469,7 @@ assert($('result-overlay').hidden &&
 
 // «Об авторе» с клавиатуры и закрытие Esc
 key('F10');
-key('ArrowDown'); key('ArrowDown'); key('ArrowDown'); // mi-about
+key('ArrowDown'); key('ArrowDown'); // mi-about
 key('Enter');
 assert(!$('about-modal').hidden, 'клавиатура: «Об авторе» открывается из меню');
 assert($('game-window').getAttribute('inert') !== null,
@@ -482,10 +479,11 @@ assert($('about-modal').hidden, 'клавиатура: Esc закрывает «
 assert($('game-window').getAttribute('inert') === null,
   'модальность: «Об авторе» закрыто — inert снят');
 
-// «Выход»: прощальный экран + попытка закрыть вкладку
-$('mi-exit').click();
-assert(!$('farewell').hidden, '«Выход»: показан прощальный экран');
-assert(windowClosed, '«Выход»: window.close() вызван');
+// «Выход» удалён из меню (remove-exit-menu-item): в разметке пункта и
+// прощального экрана нет
+assert(!gameMarkup.includes('mi-exit') && !gameMarkup.includes('Выход'),
+  'меню: пункта «Выход» нет в разметке');
+assert(!gameMarkup.includes('farewell'), 'прощального экрана нет в разметке');
 
 console.log(failures === 0 ? 'СМОУК: ВСЁ ЗЕЛЁНОЕ' : 'СМОУК: ЕСТЬ ОШИБКИ (' + failures + ')');
 process.exit(failures === 0 ? 0 : 1);
