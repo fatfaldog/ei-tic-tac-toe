@@ -170,13 +170,18 @@ const overlay = $('result-overlay');
 const overlayShown = !overlay.hidden;
 const text = $('result-text').innerHTML;
 assert(overlayShown, 'по завершении партии показан оверлей результата');
-// плита «Новая игра» вместо текстовой кнопки (new-game-plate)
+// окно результата в стиле диалогов + плита «Новая игра» (new-game-plate)
 const gameMarkup = fs.readFileSync(path.join(ROOT, 'web/index.html'), 'utf8');
+assert(gameMarkup.includes('class="modal result"') &&
+  gameMarkup.includes('class="result-title"') &&
+  gameMarkup.includes('class="result-frame"'),
+  'окно результата: плита-заголовок, рамка, структура как у диалогов');
 assert(gameMarkup.includes('id="result-new-game" class="plate-btn"') &&
   gameMarkup.includes('aria-label="Новая игра"'),
   'оверлей: «Новая игра» — плита (plate-btn) с aria-label');
-assert(fs.existsSync(path.join(ROOT, 'web/assets/img/plate-new-game.png')),
-  'ассет plate-new-game.png сгенерирован');
+assert(fs.existsSync(path.join(ROOT, 'web/assets/img/plate-new-game.png')) &&
+  fs.existsSync(path.join(ROOT, 'web/assets/img/plate-result.png')),
+  'ассеты plate-new-game.png и plate-result.png сгенерированы');
 // тексты исходов — дословно оригинальные (change restore-original-result-texts)
 assert(K.UI.RESULT_TEXTS.playerWon === 'Вы выиграли. ПоЗдравляю!!!!!',
   'текст победы игрока дословный (ПоЗдравляю с ПЗ)');

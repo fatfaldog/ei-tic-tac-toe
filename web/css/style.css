@@ -250,7 +250,7 @@ html, body {
 
 .stone-btn:hover { background: #3a3220; color: #ffe9a8; }
 
-/* плита «Новая игра» в оверлее результата (new-game-plate): срез из той же
+/* плита «Новая игра» в окне результата (new-game-plate): срез из той же
  * серии, что плита «Об авторе»; класс plate-btn даёт тень, свечение
  * hover/фокуса и скрытие текста — здесь только размер и фон */
 #result-new-game {
@@ -259,6 +259,51 @@ html, body {
   margin-top: 16px;
   background-image: url("../assets/img/plate-new-game.png");
 }
+
+/* подсветка плиты «Новая игра» — только золотистый ореол, без brightness:
+ * на большой плите вспышка яркости избыточна (правка приёмки) */
+#result-new-game:hover,
+#result-new-game.kbd-active,
+#result-new-game:focus {
+  filter: drop-shadow(0 0 6px rgba(201, 187, 146, .8));
+}
+
+/* Окно результата: структурно как «Настройки»/«Об авторе» (правка приёмки) —
+ * плита-заголовок «Результат», рамка с текстом исхода, плита «Новая игра» */
+.modal.result {
+  width: 404px;
+  padding: 0 0 16px;
+  background: linear-gradient(180deg, #1a1509 0%, #14110a 40%, #0f0d07 100%);
+  border: 2px solid #4a4128;
+  outline: 1px solid #201b0e;
+  box-shadow: 0 0 24px rgba(0, 0, 0, .85), inset 0 0 30px rgba(0, 0, 0, .6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.result-title {
+  margin: 10px auto 0;
+  width: 360px;
+  height: 55px;   /* пропорции плиты 2170x332 */
+  background: url("../assets/img/plate-result.png") center / contain no-repeat;
+  text-indent: -9999px;
+  overflow: hidden;
+  user-select: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .7));
+}
+
+.result-frame {
+  margin: 14px 14px 0;
+  align-self: stretch;
+  border: 2px solid #57492a;
+  outline: 1px solid #201b0e;
+  background: #0a0804;
+  box-shadow: inset 0 0 14px rgba(0, 0, 0, .7);
+  padding: 20px 12px;
+}
+
+.result-frame .panel-text { margin-bottom: 0; }
 
 /* -------------------------------------------------------- модальные окна */
 
