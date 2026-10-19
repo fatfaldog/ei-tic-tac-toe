@@ -56,6 +56,34 @@ html, body {
   background: #000 url("../assets/img/main-bg.jpg") center top / 100% auto no-repeat;
 }
 
+/* Строка состояния под полем (turn-pacing): мелкий коричневый текст
+ * в стиле номеров клеток; полоса в духе строки меню */
+.status-bar {
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  background: #14110a;
+  border-top: 1px solid #2e2a1c;
+  color: #c8a874;
+  font-size: 11px;
+  text-shadow: 0 1px 2px #000;
+  user-select: none;
+}
+
+/* Проявление знака — «рисование» (turn-pacing): fadein 1с */
+@keyframes draw-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.cell.draw-in { animation: draw-in 1s ease-out; }
+
+/* Системная настройка уменьшения анимаций: без проявления,
+ * тексты статусов и задержки темпа сохраняются */
+@media (prefers-reduced-motion: reduce) {
+  .cell.draw-in { animation: none; }
+}
+
 /* -------------------------------------------------------------- меню */
 
 .menubar {

@@ -82,6 +82,9 @@
     if (focusCell === null || !game) {
       return null;
     }
+    if (visualLock) {
+      return 'dim'; // темп (turn-pacing): визуально ещё ход противника
+    }
     return focusView(focusCell, game.engine.board, game.engine.current,
       game.engine.status, uiContext, game.engine.playerMark);
   }
@@ -126,7 +129,73 @@
   /** Попытка хода (клик или подтверждение в фокусе). На завершённой партии —
    *  повторно открываем окно результата с исходом (правка приёмки); в активной
    *  партии движок сам игнорирует не-очередь/занятость. */
+  /* ------------------------------------ строка состояния и темп */
+  /* (turn-pacing): движок синхронен, темп живёт в UI-очереди. Ход игрока
+   * рисуется сразу (fadein), ход компьютера ждёт THINK_MS «думаю…», затем
+   * рисуется DRAW_MS («рисую»); ввод заперт visualLock'ом — движок не
+   * вызывается, рассинхрона нет by construction. */
+  var THINK_MS = 2000;
+  var DRAW_MS = 1000;
+  var STATUS_TEXTS = {
+    your: 'Статус: ваш ход',
+    think: 'Статус: думаю…',
+    draw: 'Статус: рисую'
+  };
+  var pacingTimers = [];      // иды активных таймеров темпа
+  var pendingComputer = null; // { index } — ход компьютера ждёт визуализации
+  var pendingResult = null;   // статус партии — показать после дотекания
+  var visualLock = false;     // ввод заперт на время визуализации чужого хода
+
+  function addTimer(fn, ms) {
+    var id = global.setTimeout(fn, ms);
+    pacingTimers.push(id);
+    return id;
+  }
+
+  /** Единственная точка сброса темпа: новая партия гасит всё незавершённое. */
+  function clearPacing() {
+    for (var i = 0; i < pacingTimers.length; i++) {
+      global.clearTimeout(pacingTimers[i]);
+    }
+    pacingTimers = [];
+    pendingComputer = null;
+    pendingResult = null;
+    visualLock = false;
+  }
+
+  function renderStatus(key) {
+    $('status-bar').innerHTML = STATUS_TEXTS[key];
+  }
+
+  function reducedMotion() {
+    return !!(global.matchMedia &&
+      global.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  /** «рисую»: проявить знак компьютера, затем «ваш ход»/результат. */
+  function showComputerMove() {
+    if (!pendingComputer) {
+      return;
+    }
+    renderStatus('draw');
+    renderCell(pendingComputer.index, true);
+    addTimer(function () {
+      pendingComputer = null;
+      visualLock = false;
+      if (pendingResult) {
+        var st = pendingResult;
+        pendingResult = null;
+        showResult(st);           // результат — только после дотекания
+      } else {
+        renderStatus('your');
+      }
+    }, DRAW_MS);
+  }
+
   function tryMove(idx) {
+    if (visualLock) {
+      return; // темп: ввод заперт на «думаю…»/«рисую» (turn-pacing)
+    }
     if (game.engine.status !== 'playing') {
       showResult(game.engine.status);
       return;
@@ -183,14 +252,20 @@
     });
   }
 
-  function renderCell(index) {
+  function renderCell(index, animate) {
     var mark = game.engine.board[index];
     var el = cellEls[index];
-    el.classList.remove('cross', 'nought');
+    el.classList.remove('cross', 'nought', 'draw-in');
     if (mark === 'X') {
       el.classList.add('cross');
     } else if (mark === 'O') {
       el.classList.add('nought');
+    }
+    if (animate && mark && !reducedMotion()) {
+      el.classList.add('draw-in');
+      // снятие класса дублируем таймером: transitionend не стреляет
+      // при display:none и в reduced-motion (design turn-pacing, п.4)
+      addTimer(function () { el.classList.remove('draw-in'); }, DRAW_MS);
     }
   }
 
@@ -204,13 +279,34 @@
 
   function onGameEvent(event, data) {
     if (event === 'newgame') {
+      clearPacing(); // новая партия гасит незавершённые анимации темпа
       renderAllCells();
       hideResult();
       focusCell = null; // новая партия — фокус сбрасывается
+      renderStatus(game.settings.first === 'computer' ? 'think' : 'your');
     } else if (event === 'move') {
-      renderCell(data.index);
+      if (data.side === 'player') {
+        visualLock = true;                 // на всю визуализацию ответа
+        renderCell(data.index, true);      // знак игрока рисуется сразу
+        renderStatus('think');
+      } else {
+        visualLock = true;                 // первый ход компьютера — тоже темп
+        pendingComputer = { index: data.index };
+        addTimer(showComputerMove, THINK_MS);
+      }
     } else if (event === 'gameover') {
-      showResult(data.status);
+      pendingResult = data.status;
+      if (!pendingComputer) {
+        // партия кончилась ходом игрока: дать его знаку дорисоваться
+        addTimer(function () {
+          visualLock = false; // темп закончен и без цепочки компьютера
+          if (pendingResult) {
+            var st = pendingResult;
+            pendingResult = null;
+            showResult(st);
+          }
+        }, DRAW_MS);
+      }
     }
     renderFocus(); // вид фокуса зависит от доски, очереди и статуса
   }
@@ -688,6 +784,8 @@
 
   UI.fitScale = fitScale;          // доступ для тестов
   UI.applyFitScale = applyFitScale;
+  UI.THINK_MS = THINK_MS;          // темп (turn-pacing): доступ для тестов
+  UI.DRAW_MS = DRAW_MS;
 
   UI.init = function () {
     preloadImages(PRELOAD_CRITICAL); // первоначальное состояние — немедленно

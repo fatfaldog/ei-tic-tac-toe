@@ -85,8 +85,30 @@ windowStub.localStorage = {
   setItem(k, v) { lsStore.set(k, String(v)); },
   removeItem(k) { lsStore.delete(k); }
 };
-// браузерный setTimeout для фоновой предзагрузки (preload-assets): сразу
-windowStub.setTimeout = (fn) => { fn(); };
+// браузерный setTimeout для фоновой предзагрузки (preload-assets): сразу;
+// в режиме deferTimers (turn-pacing) — очередь с ручным прокрутом
+let timerSeq = 0;
+windowStub.deferTimers = false;
+windowStub._timerQueue = [];
+windowStub.setTimeout = (fn) => {
+  if (windowStub.deferTimers) {
+    timerSeq += 1;
+    windowStub._timerQueue.push({ id: timerSeq, fn });
+    return timerSeq;
+  }
+  fn();
+  return 0;
+};
+windowStub.clearTimeout = (id) => {
+  if (windowStub.deferTimers && id) {
+    windowStub._timerQueue = windowStub._timerQueue.filter(t => t.id !== id);
+  }
+};
+windowStub.flushTimers = () => {
+  const q = windowStub._timerQueue;
+  windowStub._timerQueue = [];
+  q.forEach(t => t.fn());
+};
 // браузерные innerWidth/innerHeight и resize (fit-to-viewport)
 windowStub.innerWidth = 1920;
 windowStub.innerHeight = 1080;
@@ -481,6 +503,81 @@ const frozen = board.children.map(c => c.className).join('|');
 key('Enter');
 assert(board.children.map(c => c.className).join('|') === frozen,
   'клавиатура: Enter на занятой клетке игнорируется');
+
+// темп партии (turn-pacing): отложенные таймеры, статусы, блокировка
+const sb = () => $('status-bar').innerHTML;
+$('mi-new-game').click(); // чистая партия в синхронном режиме
+assert(sb() === 'Статус: ваш ход', 'темп: старт — «ваш ход»');
+windowStub.deferTimers = true;
+clickBoard(0); // ход игрока: крестик сразу, компьютер в очередь
+assert(board.children[0].classList.contains('cross'), 'темп: знак игрока рисуется сразу');
+assert(sb() === 'Статус: думаю…', 'темп: после хода — «думаю…»');
+clickBoard(2); // ввод заперт
+assert(!board.children[2].classList.contains('cross') &&
+  !board.children[2].classList.contains('nought') &&
+  board.children.filter(c => c.classList.contains('nought')).length === 0,
+  'темп: ввод заперт на «думаю…», партия не меняется');
+windowStub.flushTimers(); // 2с: «рисую» + знак компьютера
+assert(sb() === 'Статус: рисую', 'темп: после «думаю…» — «рисую»');
+const compIdx = board.children.findIndex(c => c.classList.contains('nought'));
+assert(compIdx !== -1 && board.children[compIdx].classList.contains('draw-in'),
+  'темп: знак компьютера проявляется (draw-in)');
+windowStub.flushTimers(); // 1с рисования: «ваш ход»
+assert(sb() === 'Статус: ваш ход', 'темп: после «рисую» — «ваш ход»');
+clickBoard(2); // ввод открыт — ход принят
+assert(board.children[2].classList.contains('cross'), 'темп: ход после разблокировки принят');
+windowStub.flushTimers(); windowStub.flushTimers(); // дорисовать ответ
+
+// доигрываем с темпом: результат не появляется раньше конца анимаций
+let guard = 0;
+while ($('result-overlay').hidden && guard++ < 9) {
+  const idx = board.children.findIndex(c =>
+    !c.classList.contains('cross') && !c.classList.contains('nought'));
+  if (idx === -1) { break; }
+  clickBoard(idx);
+  assert($('result-overlay').hidden, 'темп: до прокрута таймеров результата нет');
+  windowStub.flushTimers();
+  windowStub.flushTimers();
+}
+assert(!$('result-overlay').hidden, 'темп: результат показан после дотекания анимаций');
+windowStub.deferTimers = false;
+$('mi-new-game').click();
+assert(sb() === 'Статус: ваш ход', 'темп: новая игра — статус «ваш ход»');
+
+// отмена темпа новой игрой на «думаю…»
+windowStub.deferTimers = true;
+clickBoard(4);
+assert(sb() === 'Статус: думаю…');
+$('mi-new-game').click(); // гасит незавершённое
+windowStub.flushTimers(); windowStub.flushTimers();
+assert(sb() === 'Статус: ваш ход' &&
+  board.children.every(c => !c.classList.contains('cross') && !c.classList.contains('nought')),
+  'темп: новая игра отменила незавершённый ответ, поле чистое');
+
+// «Комп» первым: партия начинается с «думаю…» (настройки в синхронном режиме)
+windowStub.deferTimers = false;
+$('mi-settings').click();
+$('set-row-first').click();           // -> Комп
+$('set-ok').click();                  // геймплейная смена -> новая партия
+windowStub.deferTimers = true;
+$('mi-new-game').click();             // чистый прогон первого хода с темпом
+assert(sb() === 'Статус: думаю…', 'темп: «Комп» первым — сразу «думаю…»');
+assert(board.children.every(c => !c.classList.contains('cross') && !c.classList.contains('nought')),
+  'темп: первый ход компьютера ещё не нарисован');
+windowStub.flushTimers();
+assert(sb() === 'Статус: рисую' &&
+  board.children.some(c => c.classList.contains('cross') && c.classList.contains('draw-in')),
+  'темп: компьютер «рисует» свой первый знак');
+windowStub.flushTimers();
+assert(sb() === 'Статус: ваш ход', 'темп: после первого хода — «ваш ход»');
+windowStub.deferTimers = false;
+$('mi-settings').click();             // вернуть «Я» первым для следующих секций
+$('set-row-first').click();
+$('set-ok').click();
+$('mi-new-game').click();
+assert(sb() === 'Статус: ваш ход', 'темп: возврат «Я» первым — «ваш ход»');
+// восстановить фокус клетки 2, на который опираются следующие секции
+fire(board, 'mouseover', { target: board.children[2] });
 
 // настройки с клавиатуры: F10, вниз, Enter -> окно; навигация строками и плитами
 key('F10');
