@@ -315,6 +315,7 @@
 
   function showResult(status) {
     $('result-text').innerHTML = RESULT_TEXTS[status] || '';
+    $('status-bar').innerHTML = ''; // партия окончена — строка состояния пуста до новой партии
     $('result-overlay').hidden = false;
     setContext('result');
   }
