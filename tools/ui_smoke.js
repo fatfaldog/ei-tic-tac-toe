@@ -696,7 +696,7 @@ assert($('set-val-status').innerHTML === 'Выкл', 'клавиатура: Spac
 key('Space');
 assert($('set-val-status').innerHTML === 'Вкл', 'клавиатура: статус обратно Вкл');
 key('ArrowDown');                      // -> set-row-layout
-assert($('set-row-layout').classList.contains('kbd-active'), 'клавиатура: дошла до «Порядка нумерации»');
+assert($('set-row-layout').classList.contains('kbd-active'), 'клавиатура: дошла до «Порядка нумерации клеток»');
 key('Space');                          // -> Нумпад
 assert($('set-val-layout').innerHTML === 'Нумпад', 'клавиатура: Space циклит порядок нумерации');
 // Esc — отмена: черновик отброшен
