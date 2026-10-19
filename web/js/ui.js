@@ -253,6 +253,15 @@
       if (menuOpen()) { setContext('menu'); } else { setContext('board'); }
       e.stopPropagation();
     });
+    // Tab-фокус на пунктах меню: Enter/Space открывают их (правка приёмки)
+    [$('menu-game'), $('mi-about')].forEach(function (item) {
+      item.addEventListener('keydown', function (e) {
+        if (e.code === 'Enter' || e.code === 'Space' || e.code === 'NumpadEnter') {
+          e.preventDefault();
+          item.click();
+        }
+      });
+    });
     document.addEventListener('click', function (e) {
       if (!e.target.closest || !e.target.closest('#menu-game')) {
         if (menuOpen()) {
@@ -323,6 +332,9 @@
   }
 
   function cycleSetting(key) {
+    if (!settingsDraft) {
+      return;
+    }
     var d = settingsDraft;
     if (key === 'level') { d.level = d.level === 'easy' ? 'hard' : 'easy'; }
     if (key === 'first') { d.first = d.first === 'player' ? 'computer' : 'player'; }
@@ -351,6 +363,9 @@
   }
 
   function applySettingsOk() {
+    if (!settingsDraft) {
+      return; // защита от двойного срабатывания (native click + клавиатура)
+    }
     var gameplayChanged = settingsDraft.level !== game.settings.level ||
       settingsDraft.first !== game.settings.first;
     game.applySettings(settingsDraft); // раскладка действует немедленно
@@ -361,6 +376,22 @@
   }
 
   function initSettings() {
+    // Tab-фокус синхронизируется с выбором (settingsPos): Tab по строкам
+    // и плитам двигает и подсветку выбора (правка приёмки)
+    SETTING_ROW_IDS.forEach(function (rowId, i) {
+      $(rowId).addEventListener('focus', function () {
+        if (settingsDraft) {
+          settingsPos = i;
+          renderSettings();
+        }
+      });
+    });
+    $('set-ok').addEventListener('focus', function () {
+      if (settingsDraft) { settingsPos = 3; renderSettings(); }
+    });
+    $('set-cancel').addEventListener('focus', function () {
+      if (settingsDraft) { settingsPos = 4; renderSettings(); }
+    });
     SETTING_ROW_IDS.forEach(function (rowId, i) {
       $(rowId).addEventListener('click', function () {
         settingsPos = i;

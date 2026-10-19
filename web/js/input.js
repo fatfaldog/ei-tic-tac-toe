@@ -116,6 +116,15 @@
     document.addEventListener('keydown', function (e) {
       var action = keyAction(e);
       if (action) {
+        // Если фокус стоит на нативном контроле (кнопка меню/плиты/клетки,
+        // пункт меню), Enter/Space обрабатывает сам контрол (native click) —
+        // не дублируем действием игры (правка приёмки: Tab-навигация).
+        var ae = document.activeElement;
+        if (action === 'CONFIRM' && ae &&
+            (ae.tagName === 'BUTTON' ||
+             (ae.classList && ae.classList.contains('menu-item')))) {
+          return; // native click сделает то же самое
+        }
         e.preventDefault();
         dispatch(action);
         return;

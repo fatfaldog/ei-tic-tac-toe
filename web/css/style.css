@@ -472,3 +472,10 @@ a.about-link:hover {
   height: 61px;
   background-image: url("../assets/img/plate-confirm.png");
 }
+
+/* Tab-фокус на пунктах меню/строках настроек = та же подсветка, что kbd-active */
+.menu-item:focus-visible,
+.settings-row:focus-visible {
+  background: rgba(38, 30, 15, .72);
+  outline: 1px solid #57492a;
+}

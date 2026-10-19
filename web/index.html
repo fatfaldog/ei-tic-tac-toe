@@ -14,16 +14,16 @@
   <!-- Главное окно: клиентская область 417x418 (TFORM1), фон — main-bg.jpg -->
   <div id="game-window" class="window">
     <div class="menubar">
-      <div class="menu-item" id="menu-game">
+      <div class="menu-item" id="menu-game" tabindex="0" role="button" aria-haspopup="true">
         Игра
         <div class="dropdown" id="menu-game-dropdown">
-          <button class="dd-item" tabindex="-1" id="mi-new-game">Новая игра</button>
-          <button class="dd-item" tabindex="-1" id="mi-settings">Настройки</button>
+          <button class="dd-item" id="mi-new-game">Новая игра</button>
+          <button class="dd-item" id="mi-settings">Настройки</button>
           <div class="dd-sep"></div>
-          <button class="dd-item" tabindex="-1" id="mi-exit">Выход</button>
+          <button class="dd-item" id="mi-exit">Выход</button>
         </div>
       </div>
-      <div class="menu-item" id="mi-about">Об авторе</div>
+      <div class="menu-item" id="mi-about" tabindex="0" role="button">Об авторе</div>
     </div>
 
     <!-- Игровая область: клиентская область TFORM1 417x418 -->
@@ -56,15 +56,15 @@
       <div class="settings-title">Настройки</div>
 
       <div class="settings-frame easy" id="settings-frame">
-        <div class="settings-row" id="set-row-level" data-row="level">
+        <div class="settings-row" id="set-row-level" tabindex="0" data-row="level">
           <span class="set-name">Уровень сложности</span>
           <span class="set-value" id="set-val-level">Легкий</span>
         </div>
-        <div class="settings-row" id="set-row-first" data-row="first">
+        <div class="settings-row" id="set-row-first" tabindex="0" data-row="first">
           <span class="set-name">Кто ходит первым</span>
           <span class="set-value" id="set-val-first">Я</span>
         </div>
-        <div class="settings-row" id="set-row-layout" data-row="digitLayout">
+        <div class="settings-row" id="set-row-layout" tabindex="0" data-row="digitLayout">
           <span class="set-name">Раскладка 1-9</span>
           <span class="set-value" id="set-val-layout">Читающая</span>
         </div>
