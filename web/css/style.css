@@ -250,6 +250,16 @@ html, body {
 
 .stone-btn:hover { background: #3a3220; color: #ffe9a8; }
 
+/* плита «Новая игра» в оверлее результата (new-game-plate): срез из той же
+ * серии, что плита «Об авторе»; класс plate-btn даёт тень, свечение
+ * hover/фокуса и скрытие текста — здесь только размер и фон */
+#result-new-game {
+  width: 340px;
+  height: 53px;   /* пропорции плиты 2170x337 */
+  margin-top: 16px;
+  background-image: url("../assets/img/plate-new-game.png");
+}
+
 /* -------------------------------------------------------- модальные окна */
 
 .modal-wrap {

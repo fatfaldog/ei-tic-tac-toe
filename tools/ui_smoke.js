@@ -170,6 +170,13 @@ const overlay = $('result-overlay');
 const overlayShown = !overlay.hidden;
 const text = $('result-text').innerHTML;
 assert(overlayShown, 'по завершении партии показан оверлей результата');
+// плита «Новая игра» вместо текстовой кнопки (new-game-plate)
+const gameMarkup = fs.readFileSync(path.join(ROOT, 'web/index.html'), 'utf8');
+assert(gameMarkup.includes('id="result-new-game" class="plate-btn"') &&
+  gameMarkup.includes('aria-label="Новая игра"'),
+  'оверлей: «Новая игра» — плита (plate-btn) с aria-label');
+assert(fs.existsSync(path.join(ROOT, 'web/assets/img/plate-new-game.png')),
+  'ассет plate-new-game.png сгенерирован');
 // тексты исходов — дословно оригинальные (change restore-original-result-texts)
 assert(K.UI.RESULT_TEXTS.playerWon === 'Вы выиграли. ПоЗдравляю!!!!!',
   'текст победы игрока дословный (ПоЗдравляю с ПЗ)');
