@@ -132,6 +132,7 @@
     for (var i = 0; i < CELLS.length; i++) {
       var btn = document.createElement('button');
       btn.className = 'cell';
+      btn.tabIndex = -1;   // фокус — собственный менеджер, не Tab (правка приёмки)
       btn.style.left = CELLS[i].x + 'px';
       btn.style.top = CELLS[i].y + 'px';
       btn.style.width = CELLS[i].w + 'px';

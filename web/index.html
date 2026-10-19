@@ -17,10 +17,10 @@
       <div class="menu-item" id="menu-game">
         Игра
         <div class="dropdown" id="menu-game-dropdown">
-          <button class="dd-item" id="mi-new-game">Новая игра</button>
-          <button class="dd-item" id="mi-settings">Настройки</button>
+          <button class="dd-item" tabindex="-1" id="mi-new-game">Новая игра</button>
+          <button class="dd-item" tabindex="-1" id="mi-settings">Настройки</button>
           <div class="dd-sep"></div>
-          <button class="dd-item" id="mi-exit">Выход</button>
+          <button class="dd-item" tabindex="-1" id="mi-exit">Выход</button>
         </div>
       </div>
       <div class="menu-item" id="mi-about">Об авторе</div>
@@ -36,7 +36,7 @@
       <div id="result-overlay" class="overlay" hidden>
         <div class="panel">
           <div id="result-text" class="panel-text"></div>
-          <button id="result-new-game" class="stone-btn">Новая игра</button>
+          <button id="result-new-game" tabindex="-1" class="stone-btn">Новая игра</button>
         </div>
       </div>
 
@@ -71,8 +71,8 @@
       </div>
 
       <div class="settings-buttons">
-        <button class="plate-btn" id="set-ok" aria-label="Применить и закрыть">OK</button>
-        <button class="plate-btn" id="set-cancel" aria-label="Закрыть без применения">X</button>
+        <button class="plate-btn" tabindex="-1" id="set-ok" aria-label="Применить и закрыть">OK</button>
+        <button class="plate-btn" tabindex="-1" id="set-cancel" aria-label="Закрыть без применения">X</button>
       </div>
     </div>
   </div>
@@ -85,25 +85,28 @@
       <div class="about-title">Об авторе</div>
 
       <div class="about-frame">
-        <div class="about-group">
-          <div class="about-role">Разработка</div>
-          <div class="about-name">fatfaldog</div>
+        <div class="about-col">
+          <div class="about-group">
+            <div class="about-role">Разработка</div>
+            <div class="about-name">fatfaldog</div>
+          </div>
+          <div class="about-group">
+            <div class="about-role">Тестирование</div>
+            <div class="about-name">PPyatachok</div>
+          </div>
         </div>
-        <div class="about-group">
-          <div class="about-role">Тестирование</div>
-          <div class="about-name">PPyatachok</div>
-        </div>
-        <div class="about-sep"></div>
-        <div class="about-group">
-          <div class="about-role">Особая благодарность</div>
-          <div class="about-name">ksaont</div>
-          <div class="about-name">Morgens</div>
-          <div class="about-name">Проекту «<a class="about-link" href="https://allods.gipat.ru/" target="_blank" rel="noopener">Вселенная Аллодов</a>»</div>
+        <div class="about-col about-col-right">
+          <div class="about-group">
+            <div class="about-role">Особая благодарность</div>
+            <div class="about-name">ksaont</div>
+            <div class="about-name">Morgens</div>
+            <div class="about-name">Проекту «<a class="about-link" href="https://allods.gipat.ru/" target="_blank" rel="noopener">Вселенная Аллодов</a>»</div>
+          </div>
         </div>
       </div>
 
       <div class="about-buttons">
-        <button class="plate-btn" id="about-ok" aria-label="Закрыть окно">OK</button>
+        <button class="plate-btn" tabindex="-1" id="about-ok" aria-label="Закрыть окно">OK</button>
       </div>
     </div>
   </div>
