@@ -395,12 +395,12 @@ html, body {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: 12px 12px 0;
+  align-items: center;      /* вертикальная центровка колонок (правка приёмки) */
+  padding: 10px 10px;
   box-sizing: border-box;
 }
 
-.about-col { display: flex; flex-direction: column; gap: 10px; max-width: 55%; }
+.about-col { display: flex; flex-direction: column; gap: 10px; max-width: 52%; }
 .about-col-right { text-align: right; }
 
 .about-group {
@@ -421,8 +421,12 @@ html, body {
   font-size: 14px;
   text-shadow: 0 1px 2px #000;
   margin-top: 2px;
-  white-space: nowrap;
 }
+
+.about-name .about-link { white-space: nowrap; }
+
+/* длинная строка со ссылкой: перенос до/после кавычек, сама ссылка цельная */
+.about-name-link { max-width: 190px; margin-left: auto; }
 
 .about-sep { display: none; }
 
