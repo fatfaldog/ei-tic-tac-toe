@@ -410,6 +410,36 @@
     setContext('board');
   }
 
+  /* ------------------------------------------------ сохранение настроек */
+  /* (persist-settings): localStorage необязателен — при недоступности
+   * (sandbox-iframe бросает SecurityError) или повреждённых данных игра
+   * молча работает с настройками текущей сессии и умолчаниями при старте. */
+  var STORAGE_KEY = 'krestiki.settings';
+
+  function loadStoredSettings() {
+    try {
+      var raw = global.localStorage.getItem(STORAGE_KEY);
+      if (!raw) { return null; }
+      var parsed = JSON.parse(raw);
+      return (parsed && typeof parsed === 'object') ? parsed : null;
+    } catch (e) {
+      return null; // хранилище недоступно или мусор — умолчания
+    }
+  }
+
+  function saveStoredSettings(settings) {
+    try {
+      global.localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        level: settings.level,
+        first: settings.first,
+        digitLayout: settings.digitLayout,
+        showDigits: settings.showDigits
+      }));
+    } catch (e) {
+      /* недоступно — молча: настройки действуют в пределах сессии */
+    }
+  }
+
   function applySettingsOk() {
     if (!settingsDraft) {
       return; // защита от двойного срабатывания (native click + клавиатура)
@@ -417,6 +447,7 @@
     var gameplayChanged = settingsDraft.level !== game.settings.level ||
       settingsDraft.first !== game.settings.first;
     game.applySettings(settingsDraft); // раскладка действует немедленно
+    saveStoredSettings(game.settings); // применённое — в хранилище (persist-settings)
     renderDigits();                    // и номера клеток — тоже (cell-number-hints)
     closeSettings();
     if (gameplayChanged) {
@@ -563,10 +594,15 @@
   }
 
   UI.RESULT_TEXTS = RESULT_TEXTS;  // доступ для тестов
+  UI.loadStoredSettings = loadStoredSettings; // доступ для тестов (persist-settings)
 
   UI.init = function () {
     game = new NS.Game(NS.AI);
     game.onEvent = onGameEvent;
+    var stored = loadStoredSettings();
+    if (stored) {
+      game.applySettings(stored); // валидация движком; до buildBoard и первой партии
+    }
     buildBoard();
     initMenu();
     initSettings();

@@ -78,6 +78,14 @@ const documentStub = {
 
 const windowStub = {};   // window.close() больше не используется (remove-exit-menu-item)
 
+// мок localStorage (persist-settings): обычное хранилище в памяти
+const lsStore = new Map();
+windowStub.localStorage = {
+  getItem(k) { return lsStore.has(k) ? lsStore.get(k) : null; },
+  setItem(k, v) { lsStore.set(k, String(v)); },
+  removeItem(k) { lsStore.delete(k); }
+};
+
 global.window = windowStub;
 global.document = documentStub;
 
@@ -265,6 +273,8 @@ assert($('settings-frame').classList.contains('hard'), 'превью: тролл
 // крестик: закрыть без применения — уровень не изменился
 $('set-cancel').click();
 assert($('settings-modal').hidden, 'крестик закрывает окно');
+assert(windowStub.localStorage.getItem('krestiki.settings') === null,
+  'хранение: отмена не пишет в localStorage');
 $('mi-settings').click();
 assert($('set-val-level').innerHTML === 'Легкий', 'отмена отбросила черновик');
 assert($('settings-frame').classList.contains('easy'), 'фон вернулся к кролику');
@@ -275,6 +285,28 @@ $('set-row-first').click();            // -> Комп
 $('set-row-layout').click();           // -> Нумпад
 $('set-ok').click();
 assert($('settings-modal').hidden, 'галочка закрывает окно');
+// хранение: OK сохраняет применённые настройки; loadStoredSettings читает их (persist-settings)
+const savedJson = windowStub.localStorage.getItem('krestiki.settings');
+assert(savedJson !== null, 'хранение: OK записал настройки в localStorage');
+const saved = JSON.parse(savedJson);
+assert(saved.level === 'hard' && saved.first === 'computer' &&
+  saved.digitLayout === 'numpad' && saved.showDigits === true,
+  'хранение: в localStorage применённые значения (Тяжелый/Комп/Нумпад/Да)');
+const loadedBack = K.UI.loadStoredSettings();
+assert(loadedBack && loadedBack.level === 'hard' && loadedBack.digitLayout === 'numpad',
+  'хранение: loadStoredSettings читает сохранённое');
+// недоступное хранилище: load/save молча не падают (sandbox-iframe)
+const origLs = windowStub.localStorage;
+windowStub.localStorage = {
+  getItem() { throw new Error('SecurityError'); },
+  setItem() { throw new Error('SecurityError'); }
+};
+assert(K.UI.loadStoredSettings() === null,
+  'хранение: недоступное хранилище — load молча даёт null');
+$('mi-settings').click();
+$('set-ok').click(); // применение без изменений — save с бросающим хранилищем не роняет
+assert($('settings-modal').hidden, 'хранение: OK не падает без хранилища');
+windowStub.localStorage = origLs;
 // нумпад применился и к номерам клеток немедленно (cell-number-hints)
 assert(board.children[0].getAttribute('data-digit') === '7' &&
   board.children[8].getAttribute('data-digit') === '3',
