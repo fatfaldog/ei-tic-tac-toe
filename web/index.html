@@ -56,6 +56,9 @@
       <div class="settings-title">Настройки</div>
 
       <div class="settings-frame easy" id="settings-frame">
+        <!-- две группы с неинтерактивными заголовками (cell-number-hints):
+             стрелки/Tab заголовки пропускают -->
+        <div class="settings-group-title" id="set-group-game">Геймплей</div>
         <div class="settings-row" id="set-row-level" tabindex="0" data-row="level">
           <span class="set-name">Уровень сложности</span>
           <span class="set-value" id="set-val-level">Легкий</span>
@@ -64,8 +67,6 @@
           <span class="set-name">Кто ходит первым</span>
           <span class="set-value" id="set-val-first">Я</span>
         </div>
-        <!-- группа «Управление с клавиатуры» (cell-number-hints): заголовок
-             неинтерактивен — стрелки/Tab его пропускают -->
         <div class="settings-group-title" id="set-group-kbd">Управление с клавиатуры</div>
         <div class="settings-row" id="set-row-show-digits" tabindex="0" data-row="showDigits">
           <span class="set-name">Отображать номера клеток</span>

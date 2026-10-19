@@ -194,14 +194,17 @@ assert($('set-val-level').innerHTML === 'Легкий' &&
   $('set-val-first').innerHTML === 'Я' &&
   $('set-val-show-digits').innerHTML === 'Да' &&
   $('set-val-layout').innerHTML === 'Нативный', 'строки показывают текущие значения');
-// группа «Управление с клавиатуры»: заголовок есть в разметке и неинтерактивен
-// (стаб DOM его не касаются — проверяем исходный HTML, как для «Об авторе»)
+// группы «Геймплей» и «Управление с клавиатуры»: заголовки в разметке и неинтерактивны
+// (стаб DOM их не касается — проверяем исходный HTML, как для «Об авторе»)
 const settingsMarkup = fs.readFileSync(path.join(ROOT, 'web/index.html'), 'utf8');
-assert(settingsMarkup.includes('id="set-group-kbd"') &&
+assert(settingsMarkup.includes('id="set-group-game"') &&
+  settingsMarkup.includes('Геймплей') &&
+  settingsMarkup.includes('id="set-group-kbd"') &&
   settingsMarkup.includes('Управление с клавиатуры'),
-  'разметка: заголовок группы «Управление с клавиатуры»');
-assert($('set-group-kbd').getAttribute('tabindex') === null,
-  'заголовок группы не табулируем (стрелки/Tab его пропускают)');
+  'разметка: заголовки групп «Геймплей» и «Управление с клавиатуры»');
+assert($('set-group-game').getAttribute('tabindex') === null &&
+  $('set-group-kbd').getAttribute('tabindex') === null,
+  'заголовки групп не табулируемы (стрелки/Tab их пропускают)');
 // номера клеток включены по умолчанию: нативный порядок 1..9 (cell-number-hints)
 assert(board.classList.contains('digits-on'), 'номера клеток включены по умолчанию');
 assert(board.children[0].getAttribute('data-digit') === '1' &&
