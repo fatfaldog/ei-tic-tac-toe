@@ -326,7 +326,7 @@ html, body {
  * неинтерактивные — без подсветки, вне Tab и стрелочной навигации;
  * подложка чуть темнее строк настроек (правка приёмки) */
 .settings-group-title {
-  margin: 12px 8px 4px;
+  margin: 6px 8px 4px;   /* до второго заголовка — компактнее (правка приёмки) */
   padding: 5px 8px;
   background: rgba(5, 4, 2, .65);
   color: #9a8f6b;
@@ -337,7 +337,7 @@ html, body {
   user-select: none;
 }
 
-.settings-group-title:first-child { margin-top: 10px; }
+.settings-group-title:first-child { margin-top: 2px; }
 
 .set-name { flex: 1; }
 .set-value { color: #ffe9a8; text-shadow: 0 1px 2px #000; }
