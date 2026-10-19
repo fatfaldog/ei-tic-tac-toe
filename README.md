@@ -103,10 +103,12 @@ layout.json     дев-инвентарь координат и размеров
 LICENSE         лицензия MIT
 ```
 
+[![Tests](https://github.com/fatfaldog/ei-tic-tac-toe/actions/workflows/tests.yml/badge.svg)](https://github.com/fatfaldog/ei-tic-tac-toe/actions/workflows/tests.yml)
+
 Тесты: `node tools/run_tests.js web/tests/engine-tests.js web/tests/ai-tests.js web/tests/input-tests.js`
-(43 проверки логики), `node tools/ui_smoke.js` (106 проверок интерфейса);
-в браузере — `web/tests/engine-tests.html`, `web/tests/ai-tests.html` и
-`web/tests/input-tests.html`.
+и `node tools/ui_smoke.js` — актуальное число проверок печатается при запуске,
+живой статус каждого пуша — в бейдже; в браузере — `web/tests/engine-tests.html`,
+`web/tests/ai-tests.html` и `web/tests/input-tests.html`.
 
 ## Лицензия
 

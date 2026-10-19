@@ -1,0 +1,45 @@
+# Прогон тестов на каждый релевантный пуш (change: ci-test-workflow).
+# Логические тесты и смоук — чистый Node без зависимостей: ни npm install,
+# ни кэша. Правки openspec/, references/, README тесты не меняют —
+# path-фильтры не занимают очередь GitHub Actions лишними раннами.
+name: Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - 'tools/**'
+      - '.github/workflows/tests.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - 'tools/**'
+      - '.github/workflows/tests.yml'
+
+permissions:
+  contents: read
+
+# Устаревшие пуши не копим в очереди: актуален только последний пуш
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Логические тесты (движок, ИИ, ввод)
+        run: node tools/run_tests.js web/tests/engine-tests.js web/tests/ai-tests.js web/tests/input-tests.js
+
+      - name: Смоук интерфейса (DOM-стаб, без браузера)
+        run: node tools/ui_smoke.js
