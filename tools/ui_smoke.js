@@ -344,6 +344,7 @@ windowStub.innerWidth = 1920; // вернуть для последующих п
 // замер вместо констант: явная передача размеров игры (gameSize в стабе
 // даёт резерв 421x446, реальный браузер меряет offsetWidth/offsetHeight)
 assert(K.UI.fitScale(390, 844, 419, 442) === 0.9308, 'масштаб: от замеренных 419x442 -> 0.9308');
+
 // окно не сжимается flex'ом сцены (правка приёмки S25 Ultra: game 384x440
 // вместо 419 — .game-area обрезалась overflow'ом, фон резался справа)
 assert(/\.window\s*\{[^}]*flex-shrink:\s*0/s.test(gameCss),
@@ -392,6 +393,32 @@ $('mi-settings').click();
 $('set-ok').click(); // применение без изменений — save с бросающим хранилищем не роняет
 assert($('settings-modal').hidden, 'хранение: OK не падает без хранилища');
 windowStub.localStorage = origLs;
+
+// пересчёт при смене видимости полосы (statusbar-fit-recalc): высота-ограничитель
+const gw = $('game-window');
+const sceneEl = () => $('scene').style.transform;
+windowStub.innerWidth = 844; windowStub.innerHeight = 390;  // ландшафт
+gw.offsetWidth = 419; gw.offsetHeight = 463;                // с полосой
+K.UI.applyFitScale();
+assert(sceneEl() === 'scale(0.8423)', 'полоса: старт с полосой — 390/463');
+$('mi-settings').click();
+$('set-row-status').click();                                // -> Выкл
+gw.offsetHeight = 442;                                      // окно усохло
+$('set-ok').click();
+assert($('status-bar').style.display === 'none' &&
+  sceneEl() === 'scale(0.8824)',
+  'полоса: Выкл пересчитал масштаб немедленно (390/442), без поворота');
+$('mi-settings').click();
+$('set-row-status').click();                                // -> Вкл
+gw.offsetHeight = 463;
+$('set-ok').click();
+assert($('status-bar').style.display === '' && sceneEl() === 'scale(0.8423)',
+  'полоса: Вкл вернул и полосу, и масштаб');
+delete gw.offsetWidth; delete gw.offsetHeight;              // вернуть fallback замера
+windowStub.innerWidth = 1920; windowStub.innerHeight = 1080;
+K.UI.applyFitScale();
+assert(sceneEl() === '', 'полоса: окружение восстановлено (1:1)');
+
 // нумпад применился и к номерам клеток немедленно (cell-number-hints)
 assert(board.children[0].getAttribute('data-digit') === '7' &&
   board.children[8].getAttribute('data-digit') === '3',

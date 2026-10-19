@@ -181,9 +181,15 @@
     $('status-bar').innerHTML = STATUS_TEXTS[key];
   }
 
-  /** Полоса состояния видима? («Статус» Вкл/Выкл — settings-graphics-group) */
+  /** Полоса состояния видима? («Статус» Вкл/Выкл — settings-graphics-group).
+   *  Смена видимости меняет высоту игры — пересчитываем масштаб сцены,
+   *  иначе при высоте-ограничителе окно подрезалось до поворота экрана
+   *  (statusbar-fit-recalc). */
   function renderStatusBar() {
     $('status-bar').style.display = game.settings.statusBar === false ? 'none' : '';
+    if (typeof applyFitScale === 'function') {
+      applyFitScale();
+    }
   }
 
   function reducedMotion() {
