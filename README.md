@@ -55,6 +55,36 @@ curl -s -o /dev/null -w '%{http_code}\n' https://fatfaldog.github.io/ei-tic-tac-
 curl -s -o /dev/null -w '%{http_code}\n' https://fatfaldog.github.io/ei-tic-tac-toe/tests/engine-tests.html  # 404
 ```
 
+## Встраивание в сайт (iframe)
+
+Игра — автономная статика без сборки и внешних запросов, GitHub Pages
+не запрещает встраивание (нет `X-Frame-Options`), поэтому её можно вставить
+в любую страницу обычным iframe:
+
+```html
+<iframe
+  src="https://fatfaldog.github.io/ei-tic-tac-toe/"
+  width="419" height="460"
+  style="border:0"
+  title="Крестики-нолики по ПЗшному"
+  allow="gamepad"
+></iframe>
+```
+
+Нюансы:
+
+- **Клавиатура** оживает после первого клика внутри iframe — до этого
+  нажатия достаются странице-хозяину.
+- **Геймпад** в кросс-доменном iframe по умолчанию выключен браузером
+  (Permissions-Policy) — атрибут `allow="gamepad"` это снимает.
+- **Размер**: игровое окно 417px + рамка, по высоте ~440px; при iframe
+  меньше ~420×455 появятся скроллбары.
+- **Границы**: модальные окна, курсор и вся клавиатура живут внутри
+  iframe и не выходят на страницу-хозяина; пункт «Выход» в iframe не может
+  закрыть вкладку и показывает прощальный экран — это предусмотрено.
+- **Своя копия**: можно положить каталог `web/` на любой хостинг (игра
+  работает даже с `file://`) и указать в `src` свой адрес.
+
 ## Структура репозитория
 
 ```
@@ -64,8 +94,8 @@ tools/          скрипты извлечения ассетов из exe и �
 openspec/       спецификации и история изменений (OpenSpec)
 ```
 
-Тесты: `node tools/run_tests.js web/tests/engine-tests.js web/tests/ai-tests.js`
-(24 проверки логики), `node tools/ui_smoke.js` (18 проверок интерфейса);
+Тесты: `node tools/run_tests.js web/tests/engine-tests.js web/tests/ai-tests.js web/tests/input-tests.js`
+(43 проверки логики), `node tools/ui_smoke.js` (99 проверок интерфейса);
 в браузере — `web/tests/engine-tests.html` и `web/tests/ai-tests.html`.
 
 ## Лицензия
