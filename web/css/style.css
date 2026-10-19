@@ -10,12 +10,17 @@ html, body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  /* страница не скроллится вовсе: скейлер (fit-to-viewport) всегда вписывает
+   * игру в экран, а макетное переполнение окна (419px в узком вьюпорте)
+   * больше не может порождать горизонтальный скролл/срез (правка приёмки) */
+  overflow: hidden;
   background: #0a0a08 radial-gradient(ellipse at 50% 30%, #1d1b14 0%, #0a0a08 70%);
   font-family: Tahoma, "MS Sans Serif", Geneva, Verdana, sans-serif;
 }
 
 .scene {
   min-height: 100vh;
+  min-height: 100svh;         /* iOS: видимая высота с URL-баром, без вертикального переполнения */
   transform-origin: center center;  /* масштабирование под экран (fit-to-viewport) */
   display: flex;
   align-items: center;

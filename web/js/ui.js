@@ -662,7 +662,13 @@
     preloadImages(PRELOAD_CRITICAL); // первоначальное состояние — немедленно
     scheduleBackgroundPreload();     // окна — фоном, после load/idle
     applyFitScale();
+    // iOS пересчитывает вьюпорт после загрузки и при повороте — пересчитываем
+    // и там, не только по resize (правка приёмки мобильного переполнения)
     global.addEventListener('resize', applyFitScale);
+    global.addEventListener('load', applyFitScale);
+    global.addEventListener('orientationchange', function () {
+      global.setTimeout(applyFitScale, 100); // ориентация меняет размеры не мгновенно
+    });
     game = new NS.Game(NS.AI);
     game.onEvent = onGameEvent;
     var stored = loadStoredSettings();
