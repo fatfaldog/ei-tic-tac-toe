@@ -39,6 +39,8 @@ html, body {
 .window {
   position: relative;
   width: 417px;
+  flex-shrink: 0;   /* не сжиматься flex'ом сцены: пусть вписывает скейлер,
+                       а не обрезка overflow (правка приёмки S25 Ultra) */
   border: 1px solid #3a3220;
   box-shadow: 0 0 24px rgba(0, 0, 0, .8);
   overflow: hidden;
