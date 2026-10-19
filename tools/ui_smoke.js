@@ -85,6 +85,8 @@ windowStub.localStorage = {
   setItem(k, v) { lsStore.set(k, String(v)); },
   removeItem(k) { lsStore.delete(k); }
 };
+// браузерный setTimeout для фоновой предзагрузки (preload-assets): сразу
+windowStub.setTimeout = (fn) => { fn(); };
 
 global.window = windowStub;
 global.document = documentStub;
@@ -264,6 +266,18 @@ assert(board.classList.contains('digits-on'), 'номера клеток вкл�
 assert(board.children[0].getAttribute('data-digit') === '1' &&
   board.children[8].getAttribute('data-digit') === '9',
   'нативный порядок: клетка 0 -> «1», клетка 8 -> «9»');
+
+// предзагрузка ресурсов (preload-assets): обе фазы прогрелись в стабе без
+// падения; все файлы списков существуют; мёртвый plate-new-game удалён
+assert(K.UI.PRELOAD_CRITICAL.length === 5 && K.UI.PRELOAD_BACKGROUND.length === 6,
+  'прогрев: списки фаз экспортированы (5 критичных + 6 фоновых)');
+for (const f of [...K.UI.PRELOAD_CRITICAL, ...K.UI.PRELOAD_BACKGROUND]) {
+  assert(fs.existsSync(path.join(ROOT, 'web', f)), 'прогрев: файл существует: ' + f);
+}
+assert(!fs.existsSync(path.join(ROOT, 'web/assets/img/plate-new-game.png')) &&
+  ![...K.UI.PRELOAD_CRITICAL, ...K.UI.PRELOAD_BACKGROUND]
+    .some(f => f.includes('plate-new-game')),
+  'plate-new-game.png удалён и в списках прогрева отсутствует');
 
 // клик по строке уровня: цикл + живое превью тролля
 $('set-row-level').click();

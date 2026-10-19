@@ -596,7 +596,50 @@
   UI.RESULT_TEXTS = RESULT_TEXTS;  // доступ для тестов
   UI.loadStoredSettings = loadStoredSettings; // доступ для тестов (persist-settings)
 
+  /* ------------------------------------------- предзагрузка ресурсов */
+  /* (preload-assets): все картинки — CSS-фоны, браузер грузит их лениво:
+   * знаки — при первом ходе, курсор — при первом наведении, плиты и существа
+   * окон — при первом открытии (display:none не запрашивает фоны). Греем
+   * HTTP-кэш заранее: new Image().src — когда CSS запросит фон, он локален. */
+  var PRELOAD_CRITICAL = [
+    'assets/img/cell-a.jpg',        // знак: первый ход
+    'assets/img/cell-b.jpg',
+    'assets/cursors/ei-arrow.png',  // курсор ПЗ: первый ховер
+    'assets/img/plate-confirm.png', // окно результата наступает быстро
+    'assets/img/plate-cancel.png'
+  ];
+  var PRELOAD_BACKGROUND = [
+    'assets/img/plate-settings.png',
+    'assets/img/settings-bg-1.jpg', // тролль и кролик — оба, до первого цикла
+    'assets/img/settings-bg-2.jpg',
+    'assets/img/plate-about.png',
+    'assets/img/about-bg.jpg',
+    'assets/img/plate-result.png'
+  ];
+
+  function preloadImages(list) {
+    for (var i = 0; i < list.length; i++) {
+      var img = document.createElement('img');
+      img.onerror = function () {}; // недоступный файл не сыплет ошибками
+      img.src = list[i];
+    }
+  }
+
+  function scheduleBackgroundPreload() {
+    var start = function () { preloadImages(PRELOAD_BACKGROUND); };
+    if (typeof global.requestIdleCallback === 'function') {
+      global.requestIdleCallback(start);
+    } else {
+      global.setTimeout(start, 1500); // старые Safari и тест-стаб
+    }
+  }
+
+  UI.PRELOAD_CRITICAL = PRELOAD_CRITICAL;      // доступ для тестов
+  UI.PRELOAD_BACKGROUND = PRELOAD_BACKGROUND;
+
   UI.init = function () {
+    preloadImages(PRELOAD_CRITICAL); // первоначальное состояние — немедленно
+    scheduleBackgroundPreload();     // окна — фоном, после load/idle
     game = new NS.Game(NS.AI);
     game.onEvent = onGameEvent;
     var stored = loadStoredSettings();
