@@ -83,7 +83,9 @@
       return null;
     }
     if (visualLock) {
-      return 'dim'; // темп (turn-pacing): визуально ещё ход противника
+      return null; // темп (turn-pacing): свечение фокуса гаснет, пока противник
+                   // «думает»/«рисует»; после — честный вид (правка приёмки:
+                   // dim давал шумную последовательность состояний клетки)
     }
     return focusView(focusCell, game.engine.board, game.engine.current,
       game.engine.status, uiContext, game.engine.playerMark);

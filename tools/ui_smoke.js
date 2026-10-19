@@ -519,7 +519,8 @@ clickBoard(0); // ход игрока: крестик сразу, компьют
 assert(board.children[0].classList.contains('cross'), 'темп: знак игрока рисуется сразу');
 assert(sb() === 'Статус: думаю…', 'темп: после хода — «думаю…»');
 fire(board, 'mouseover', { target: board.children[0] }); // фокус на клетке с крестиком
-assert(viewOf(0) === 'focused+dim', 'темп: во время «думаю…» фокус затушёван (ввод заперт)');
+assert(viewOf(0) === '-',
+  'темп: во время «думаю…» свечение фокуса погашено (без dim-шума)');
 clickBoard(2); // ввод заперт
 assert(!board.children[2].classList.contains('cross') &&
   !board.children[2].classList.contains('nought') &&
