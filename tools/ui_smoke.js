@@ -459,12 +459,16 @@ key('Escape');
 const marksBeforeEsc = marksOnBoard();
 assert($('result-overlay').hidden, 'клавиатура: Esc закрывает окно результата');
 assert(marksOnBoard() === marksBeforeEsc, 'Esc не начинает новую партию');
-$('mi-new-game').click();
-playToEnd();
+// попытка хода на завершённой партии повторно открывает окно результата
+key('Enter');   // подтверждение в фокусе клетки доигранного поля
+assert(!$('result-overlay').hidden, 'клавиатура: попытка хода повторно открывает окно результата');
+key('Escape');
+clickBoard(0);  // клик по клетке доигранного поля
+assert(!$('result-overlay').hidden, 'мышь: клик по клетке повторно открывает окно результата');
 key('Enter');
 assert($('result-overlay').hidden &&
   board.children.every(c => !c.classList.contains('cross') && !c.classList.contains('nought')),
-  'клавиатура: Enter = плита-галочка «Сыграем ещё?»');
+  'клавиатура: Enter после повторного открытия = галочка «Сыграем ещё?»');
 
 // «Об авторе» с клавиатуры и закрытие Esc
 key('F10');
