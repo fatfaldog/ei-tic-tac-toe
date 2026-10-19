@@ -54,7 +54,13 @@ function makeEl(tag) {
     },
     click() { fire(el, 'click', { target: el }); },
     change() { fire(el, 'change', { target: el }); },
-    focus() { fire(el, 'focus', { target: el }); }
+    focus() { fire(el, 'focus', { target: el }); },
+    blur() {
+      // браузерная семантика: blur снимает DOM-фокус (для тестов stale-фокуса)
+      if (global.document && global.document.activeElement === el) {
+        global.document.activeElement = null;
+      }
+    }
   };
   return el;
 }
@@ -581,6 +587,28 @@ $('set-ok').click();
 $('mi-new-game').click();
 assert(sb() === 'Статус: ваш ход', 'темп: возврат «Я» первым — «ваш ход»');
 // восстановить фокус клетки 2, на который опираются следующие секции
+fire(board, 'mouseover', { target: board.children[2] });
+
+// застрявший DOM-фокус не крадёт Enter/Space у хода (правка приёмки):
+// клик по «Игра» оставил DOM-фокус на menu-game; стрелки по полю его уводят
+documentStub.activeElement = $('menu-game');
+key('ArrowLeft');                    // фокус был на клетке 2 -> клетка 1
+assert(documentStub.activeElement === null || documentStub.activeElement === undefined,
+  'клавиатура: навигация полем сняла застрявший DOM-фокус с меню');
+key('Enter');
+assert(board.children[1].classList.contains('cross') &&
+  !$('menu-game').classList.contains('open'),
+  'клавиатура: Enter после стрелок ставит знак, а не открывает меню');
+key('Escape');                       // закрыть возможный результат-контекст не нужно;
+while (!$('result-overlay').hidden) { // доиграть, если Enter случайно кончил партию
+  windowStub.deferTimers = true;
+  const idx2 = board.children.findIndex(c => !c.classList.contains('cross') && !c.classList.contains('nought'));
+  if (idx2 === -1) break;
+  clickBoard(idx2);
+  windowStub.flushTimers(); windowStub.flushTimers();
+  windowStub.deferTimers = false;
+}
+$('mi-new-game').click();
 fire(board, 'mouseover', { target: board.children[2] });
 
 // настройки с клавиатуры: F10, вниз, Enter -> окно; навигация строками и плитами

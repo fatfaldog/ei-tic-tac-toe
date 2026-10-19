@@ -104,7 +104,18 @@
     renderFocus();
   }
 
+  /** Клавиатурная навигация полем уводит DOM-фокус с посторонних контролов:
+   *  застрявший на меню/кнопках, он крал бы Enter/Space у хода (правка
+   *  приёмки: стрелками выбрал клетку — Enter открывал меню). */
+  function blurStaleFocus() {
+    var ae = document.activeElement;
+    if (ae && ae !== document.body && typeof ae.blur === 'function') {
+      ae.blur();
+    }
+  }
+
   function moveFocus(action) {
+    blurStaleFocus();
     if (focusCell === null) {
       setFocus(4); // первый клавиатурный/геймпадный ввод — центр поля
       return;
@@ -679,6 +690,7 @@
     if (uiContext !== 'board') {
       return;
     }
+    blurStaleFocus(); // цифры — тоже клавиатурное управление полем
     var cell = NS.Input.digitCell(digitChar, game.settings.digitLayout);
     if (cell !== null) {
       setFocus(cell);
