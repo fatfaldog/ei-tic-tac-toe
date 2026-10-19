@@ -182,6 +182,7 @@
     addTimer(function () {
       pendingComputer = null;
       visualLock = false;
+      renderFocus(); // вид фокуса пересчитать: dim темпа -> актуальный вид (правка приёмки)
       if (pendingResult) {
         var st = pendingResult;
         pendingResult = null;
@@ -300,6 +301,7 @@
         // партия кончилась ходом игрока: дать его знаку дорисоваться
         addTimer(function () {
           visualLock = false; // темп закончен и без цепочки компьютера
+          renderFocus();      // и здесь вид фокуса должен уйти с dim темпа
           if (pendingResult) {
             var st = pendingResult;
             pendingResult = null;

@@ -512,6 +512,8 @@ windowStub.deferTimers = true;
 clickBoard(0); // ход игрока: крестик сразу, компьютер в очередь
 assert(board.children[0].classList.contains('cross'), 'темп: знак игрока рисуется сразу');
 assert(sb() === 'Статус: думаю…', 'темп: после хода — «думаю…»');
+fire(board, 'mouseover', { target: board.children[0] }); // фокус на клетке с крестиком
+assert(viewOf(0) === 'focused+dim', 'темп: во время «думаю…» фокус затушёван (ввод заперт)');
 clickBoard(2); // ввод заперт
 assert(!board.children[2].classList.contains('cross') &&
   !board.children[2].classList.contains('nought') &&
@@ -524,6 +526,8 @@ assert(compIdx !== -1 && board.children[compIdx].classList.contains('draw-in'),
   'темп: знак компьютера проявляется (draw-in)');
 windowStub.flushTimers(); // 1с рисования: «ваш ход»
 assert(sb() === 'Статус: ваш ход', 'темп: после «рисую» — «ваш ход»');
+assert(viewOf(0) === 'focused+invalid',
+  'темп: dim снят без увода фокуса — занятая клетка снова красная (правка приёмки)');
 clickBoard(2); // ввод открыт — ход принят
 assert(board.children[2].classList.contains('cross'), 'темп: ход после разблокировки принят');
 windowStub.flushTimers(); windowStub.flushTimers(); // дорисовать ответ
