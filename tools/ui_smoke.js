@@ -513,11 +513,11 @@ assert(board.children.map(c => c.className).join('|') === frozen,
 // темп партии (turn-pacing): отложенные таймеры, статусы, блокировка
 const sb = () => $('status-bar').innerHTML;
 $('mi-new-game').click(); // чистая партия в синхронном режиме
-assert(sb() === 'Статус: ваш ход', 'темп: старт — «ваш ход»');
+assert(sb() === 'Статус: Ваш ход. Жду...', 'темп: старт — «Ваш ход. Жду...»');
 windowStub.deferTimers = true;
 clickBoard(0); // ход игрока: крестик сразу, компьютер в очередь
 assert(board.children[0].classList.contains('cross'), 'темп: знак игрока рисуется сразу');
-assert(sb() === 'Статус: рисую', 'темп: после хода — сразу «рисую» (думанье убрано)');
+assert(sb() === 'Статус: Ваш ход. Рисую...', 'темп: после хода — «Ваш ход. Рисую...»');
 fire(board, 'mouseover', { target: board.children[0] }); // фокус на клетке с крестиком
 assert(viewOf(0) === '-',
   'темп: во время «рисую» свечение фокуса погашено (без dim-шума)');
@@ -526,13 +526,16 @@ assert(!board.children[2].classList.contains('cross') &&
   !board.children[2].classList.contains('nought') &&
   board.children.filter(c => c.classList.contains('nought')).length === 0,
   'темп: ввод заперт на «рисую», партия не меняется');
-windowStub.flushTimers(); // дорисовался крестик: знак компьютера
-assert(sb() === 'Статус: рисую', 'темп: статус остаётся «рисую» до конца обмена');
+windowStub.flushTimers(); // дорисовался крестик -> фаза размышления (нативная)
+assert(sb() === 'Статус: Ход компьютера. Думаю...',
+  'темп: фаза «Думаю...» стоит между знаками (длительность = вычислению)');
+windowStub.flushTimers(); // вычисление мгновенно -> «Рисую» компьютера
+assert(sb() === 'Статус: Ход компьютера. Рисую...', 'темп: «Ход компьютера. Рисую...»');
 const compIdx = board.children.findIndex(c => c.classList.contains('nought'));
 assert(compIdx !== -1 && board.children[compIdx].classList.contains('draw-in'),
   'темп: знак компьютера проявляется (draw-in)');
-windowStub.flushTimers(); // 1с рисования: «ваш ход»
-assert(sb() === 'Статус: ваш ход', 'темп: после «рисую» — «ваш ход»');
+windowStub.flushTimers(); // 1с рисования: «Жду»
+assert(sb() === 'Статус: Ваш ход. Жду...', 'темп: после обмена — «Ваш ход. Жду...»');
 assert(viewOf(0) === 'focused+invalid',
   'темп: dim снят без увода фокуса — занятая клетка снова красная (правка приёмки)');
 clickBoard(2); // ввод открыт — ход принят
@@ -549,19 +552,20 @@ while ($('result-overlay').hidden && guard++ < 9) {
   assert($('result-overlay').hidden, 'темп: до прокрута таймеров результата нет');
   windowStub.flushTimers();
   windowStub.flushTimers();
+  windowStub.flushTimers();
 }
 assert(!$('result-overlay').hidden, 'темп: результат показан после дотекания анимаций');
 windowStub.deferTimers = false;
 $('mi-new-game').click();
-assert(sb() === 'Статус: ваш ход', 'темп: новая игра — статус «ваш ход»');
+assert(sb() === 'Статус: Ваш ход. Жду...', 'темп: новая игра — «Ваш ход. Жду...»');
 
 // отмена темпа новой игрой на «думаю…»
 windowStub.deferTimers = true;
 clickBoard(4);
-assert(sb() === 'Статус: рисую');
+assert(sb() === 'Статус: Ваш ход. Рисую...');
 $('mi-new-game').click(); // гасит незавершённое
-windowStub.flushTimers(); windowStub.flushTimers();
-assert(sb() === 'Статус: ваш ход' &&
+windowStub.flushTimers(); windowStub.flushTimers(); windowStub.flushTimers();
+assert(sb() === 'Статус: Ваш ход. Жду...' &&
   board.children.every(c => !c.classList.contains('cross') && !c.classList.contains('nought')),
   'темп: новая игра отменила незавершённый ответ, поле чистое');
 
@@ -572,21 +576,22 @@ $('set-row-first').click();           // -> Комп
 $('set-ok').click();                  // геймплейная смена -> новая партия
 windowStub.deferTimers = true;
 $('mi-new-game').click();             // чистый прогон первого хода с темпом
-assert(sb() === 'Статус: рисую', 'темп: «Комп» первым — сразу «рисую»');
+assert(sb() === 'Статус: Ход компьютера. Думаю...', 'темп: «Комп» первым — сразу «Думаю...»');
 assert(board.children.every(c => !c.classList.contains('cross') && !c.classList.contains('nought')),
   'темп: первый ход компьютера ещё не нарисован');
-windowStub.flushTimers();
-assert(sb() === 'Статус: рисую' &&
+windowStub.flushTimers();            // фаза «Думаю» — один 0мс-тик
+windowStub.flushTimers();            // вычисление мгновенно -> «Рисую» + знак
+assert(sb() === 'Статус: Ход компьютера. Рисую...' &&
   board.children.some(c => c.classList.contains('cross') && c.classList.contains('draw-in')),
   'темп: компьютер «рисует» свой первый знак');
 windowStub.flushTimers();
-assert(sb() === 'Статус: ваш ход', 'темп: после первого хода — «ваш ход»');
+assert(sb() === 'Статус: Ваш ход. Жду...', 'темп: после первого хода — «Жду...»');
 windowStub.deferTimers = false;
 $('mi-settings').click();             // вернуть «Я» первым для следующих секций
 $('set-row-first').click();
 $('set-ok').click();
 $('mi-new-game').click();
-assert(sb() === 'Статус: ваш ход', 'темп: возврат «Я» первым — «ваш ход»');
+assert(sb() === 'Статус: Ваш ход. Жду...', 'темп: возврат «Я» первым — «Жду...»');
 // восстановить фокус клетки 2, на который опираются следующие секции
 fire(board, 'mouseover', { target: board.children[2] });
 
@@ -606,7 +611,7 @@ while (!$('result-overlay').hidden) { // доиграть, если Enter слу
   const idx2 = board.children.findIndex(c => !c.classList.contains('cross') && !c.classList.contains('nought'));
   if (idx2 === -1) break;
   clickBoard(idx2);
-  windowStub.flushTimers(); windowStub.flushTimers();
+  windowStub.flushTimers(); windowStub.flushTimers(); windowStub.flushTimers();
   windowStub.deferTimers = false;
 }
 $('mi-new-game').click();

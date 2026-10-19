@@ -149,9 +149,12 @@
    * ввод заперт visualLock'ом — движок не вызывается, рассинхрона нет. */
   var DRAW_MS = 1000;
   var STATUS_TEXTS = {
-    your: 'Статус: ваш ход',
-    draw: 'Статус: рисую'
+    wait: 'Статус: Ваш ход. Жду...',
+    playerDraw: 'Статус: Ваш ход. Рисую...',
+    think: 'Статус: Ход компьютера. Думаю...',
+    computerDraw: 'Статус: Ход компьютера. Рисую...'
   };
+  var playerJustMoved = false; // обмен: ход компьютера ждёт дорисовки знака игрока
   var pacingTimers = [];      // иды активных таймеров темпа
   var pendingComputer = null; // { index } — ход компьютера ждёт визуализации
   var pendingResult = null;   // статус партии — показать после дотекания
@@ -183,25 +186,31 @@
       global.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }
 
-  /** «рисую»: проявить знак компьютера, затем «ваш ход»/результат. */
+  /** «Ход компьютера. Думаю...» — фаза вычисления. Оно уже выполнено
+   *  движком мгновенно, поэтому статус стоит один 0мс-тик и в реальности
+   *  невидим; окажись выбор хода небыстрым — фаза сама станет заметной.
+   *  Никаких искусственных пауз (правка приёмки). */
   function showComputerMove() {
     if (!pendingComputer) {
       return;
     }
-    renderStatus('draw');
-    renderCell(pendingComputer.index, true);
+    renderStatus('think');
     addTimer(function () {
-      pendingComputer = null;
-      visualLock = false;
-      renderFocus(); // вид фокуса пересчитать: dim темпа -> актуальный вид (правка приёмки)
-      if (pendingResult) {
-        var st = pendingResult;
-        pendingResult = null;
-        showResult(st);           // результат — только после дотекания
-      } else {
-        renderStatus('your');
-      }
-    }, DRAW_MS);
+      renderStatus('computerDraw');
+      renderCell(pendingComputer.index, true);
+      addTimer(function () {
+        pendingComputer = null;
+        visualLock = false;
+        renderFocus(); // вид фокуса пересчитать после разблокировки
+        if (pendingResult) {
+          var st = pendingResult;
+          pendingResult = null;
+          showResult(st);           // результат — только после дотекания
+        } else {
+          renderStatus('wait');
+        }
+      }, DRAW_MS);
+    }, 0);
   }
 
   function tryMove(idx) {
@@ -295,17 +304,19 @@
       renderAllCells();
       hideResult();
       focusCell = null; // новая партия — фокус сбрасывается
-      renderStatus(game.settings.first === 'computer' ? 'draw' : 'your');
+      renderStatus(game.settings.first === 'computer' ? 'think' : 'wait');
     } else if (event === 'move') {
       if (data.side === 'player') {
         visualLock = true;                 // на всю визуализацию обмена
+        playerJustMoved = true;
         renderCell(data.index, true);      // знак игрока рисуется сразу
-        renderStatus('draw');
+        renderStatus('playerDraw');
       } else {
         visualLock = true;                 // первый ход компьютера — тоже темп
         pendingComputer = { index: data.index };
-        // знак компьютера — после дорисовки знака игрока (последовательно)
-        addTimer(showComputerMove, DRAW_MS);
+        // в обмене — после дорисовки знака игрока; первым ходом — сразу
+        addTimer(showComputerMove, playerJustMoved ? DRAW_MS : 0);
+        playerJustMoved = false;
       }
     } else if (event === 'gameover') {
       pendingResult = data.status;
