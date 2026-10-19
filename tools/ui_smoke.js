@@ -31,6 +31,7 @@ function makeEl(tag) {
     },
     setAttribute(k, v) { el._attrs[k] = String(v); },
     getAttribute(k) { return k in el._attrs ? el._attrs[k] : null; },
+    removeAttribute(k) { delete el._attrs[k]; },
     appendChild(c) { el.children.push(c); return c; },
     addEventListener(type, fn) { (el._listeners[type] = el._listeners[type] || []).push(fn); },
     set innerHTML(v) { el._html = String(v); el.children = []; },
@@ -47,7 +48,8 @@ function makeEl(tag) {
       return null;
     },
     click() { fire(el, 'click', { target: el }); },
-    change() { fire(el, 'change', { target: el }); }
+    change() { fire(el, 'change', { target: el }); },
+    focus() { fire(el, 'focus', { target: el }); }
   };
   return el;
 }
@@ -317,6 +319,8 @@ key('F10');
 key('ArrowDown');      // mi-settings
 key('Enter');
 assert(!$('settings-modal').hidden, 'клавиатура: меню -> «Настройки» открываются');
+assert($('game-window').getAttribute('inert') !== null,
+  'модальность: настройки открыты — главное окно inert (Tab/мышь заперты)');
 assert($('set-row-level').classList.contains('kbd-active'), 'клавиатура: первая строка подсвечена');
 assert(viewOf(2) === 'focused+dim', 'фокус: при открытом окне подсветка клетки тускнеет');
 // цикл уровня с клавиатуры + живое превью тролля
@@ -331,6 +335,8 @@ assert($('set-val-layout').innerHTML === 'Нумпад', 'клавиатура: 
 // Esc — отмена: черновик отброшен
 key('Escape');
 assert($('settings-modal').hidden, 'клавиатура: Esc закрывает настройки');
+assert($('game-window').getAttribute('inert') === null,
+  'модальность: Esc закрыл настройки — inert снят');
 $('mi-settings').click();
 assert($('set-val-layout').innerHTML === 'Читающая' && $('set-val-level').innerHTML === 'Легкий',
   'клавиатура: Esc отбросил изменения');
@@ -340,6 +346,8 @@ key('ArrowDown');                                            // -> плита OK
 assert($('set-ok').classList.contains('kbd-active'), 'клавиатура: фокус дошёл до плиты OK');
 key('Enter');
 assert($('settings-modal').hidden, 'клавиатура: Enter на плите OK применяет и закрывает');
+assert($('game-window').getAttribute('inert') === null,
+  'модальность: OK закрыл настройки — inert снят');
 
 // нумпадовая раскладка действует после OK: 7 -> верхняя левая
 key('Digit7');
@@ -366,8 +374,12 @@ key('F10');
 key('ArrowDown'); key('ArrowDown'); key('ArrowDown'); // mi-about
 key('Enter');
 assert(!$('about-modal').hidden, 'клавиатура: «Об авторе» открывается из меню');
+assert($('game-window').getAttribute('inert') !== null,
+  'модальность: «Об авторе» открыто — главное окно inert');
 key('Escape');
 assert($('about-modal').hidden, 'клавиатура: Esc закрывает «Об авторе»');
+assert($('game-window').getAttribute('inert') === null,
+  'модальность: «Об авторе» закрыто — inert снят');
 
 // «Выход»: прощальный экран + попытка закрыть вкладку
 $('mi-exit').click();

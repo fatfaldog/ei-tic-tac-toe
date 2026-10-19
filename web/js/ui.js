@@ -344,6 +344,14 @@
     renderSettings();
   }
 
+  /* Модальность окон «Настройки»/«Об авторе»: главное окно (меню + поле)
+   * переводится в inert — Tab-цикл и мышь не покидают диалог (правка приёмки) */
+  function setMainWindowInert(on) {
+    var w = $('game-window');
+    if (on) { w.setAttribute('inert', ''); }
+    else { w.removeAttribute('inert'); }
+  }
+
   function openSettings() {
     settingsDraft = {
       level: game.settings.level,
@@ -352,6 +360,12 @@
     };
     settingsPos = 0;
     $('settings-modal').hidden = false;
+    setMainWindowInert(true);
+    // фокус сразу внутри диалога: Tab стартует со строк, а не с меню
+    var firstRow = $(SETTING_ROW_IDS[0]);
+    if (firstRow && typeof firstRow.focus === 'function') {
+      firstRow.focus();
+    }
     setContext('settings');
     renderSettings();
   }
@@ -359,6 +373,7 @@
   function closeSettings() {
     $('settings-modal').hidden = true;
     settingsDraft = null;
+    setMainWindowInert(false);
     setContext('board');
   }
 
@@ -408,11 +423,13 @@
     // текст уже в разметке (about-line) — здесь только показ;
     // плита-галочка НЕ подсвечивается по умолчанию (правка приёмки)
     $('about-modal').hidden = false;
+    setMainWindowInert(true); // модально: Tab/мышь не уходят на поле и меню
     setContext('about');
   }
 
   function closeAbout() {
     $('about-modal').hidden = true;
+    setMainWindowInert(false);
     setContext('board');
   }
 
