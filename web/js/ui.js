@@ -644,15 +644,46 @@
    * и модальные окна (fixed внутри transform-предка ездит вместе с ней). */
   var FIT_W = 421, FIT_H = 446;
 
-  function fitScale(w, h) {
-    var s = Math.min(w / FIT_W, h / FIT_H, 1);
+  function fitScale(w, h, gw, gh) {
+    gw = gw || FIT_W;
+    gh = gh || FIT_H;
+    var s = Math.min(w / gw, h / gh, 1);
     return Math.round(s * 10000) / 10000;   // округление против дрожания transform
   }
 
+  /** Фактический размер игры из DOM: константы — только резерв для тест-стаба
+   *  (правка приёмки: угаданные 421x446 не совпали с реальностью на мобильном). */
+  function gameSize() {
+    var w = $('game-window');
+    return {
+      w: (w && w.offsetWidth) || FIT_W,
+      h: (w && w.offsetHeight) || FIT_H
+    };
+  }
+
+  /** Отладочный HUD (только при ?debug в URL): точные числа рендера. */
+  function fitDebugHud(s, sz) {
+    if (!global.location || !/\bdebug\b/.test(global.location.search || '')) {
+      return;
+    }
+    var hud = $('fit-hud');
+    if (!hud) {
+      hud = document.createElement('div');
+      hud.id = 'fit-hud';
+      hud.style.cssText = 'position:fixed;left:4px;bottom:4px;z-index:999;' +
+        'color:#0f0;background:rgba(0,0,0,.7);font:11px monospace;padding:2px 5px';
+      document.body.appendChild(hud);
+    }
+    hud.innerHTML = 'viewport ' + global.innerWidth + 'x' + global.innerHeight +
+      ' game ' + sz.w + 'x' + sz.h + ' scale ' + s;
+  }
+
   function applyFitScale() {
-    var s = fitScale(global.innerWidth, global.innerHeight);
+    var sz = gameSize();
+    var s = fitScale(global.innerWidth, global.innerHeight, sz.w, sz.h);
     // s === 1 -> убираем transform вовсе: на десктопе ни пикселя не меняется
     $('scene').style.transform = (s === 1) ? '' : 'scale(' + s + ')';
+    fitDebugHud(s, sz);
   }
 
   UI.fitScale = fitScale;          // доступ для тестов
@@ -661,14 +692,22 @@
   UI.init = function () {
     preloadImages(PRELOAD_CRITICAL); // первоначальное состояние — немедленно
     scheduleBackgroundPreload();     // окна — фоном, после load/idle
-    applyFitScale();
-    // iOS пересчитывает вьюпорт после загрузки и при повороте — пересчитываем
-    // и там, не только по resize (правка приёмки мобильного переполнения)
+    // первый расчёт — после layout (замер фактического размера окна из DOM)
+    if (typeof global.requestAnimationFrame === 'function') {
+      global.requestAnimationFrame(applyFitScale);
+    } else {
+      applyFitScale(); // тест-стаб без rAF
+    }
+    // iOS/Android пересчитывают вьюпорт после загрузки и при повороте —
+    // пересчитываем и там, не только по resize (правки приёмки мобильных)
     global.addEventListener('resize', applyFitScale);
     global.addEventListener('load', applyFitScale);
     global.addEventListener('orientationchange', function () {
       global.setTimeout(applyFitScale, 100); // ориентация меняет размеры не мгновенно
     });
+    if (global.visualViewport) {
+      global.visualViewport.addEventListener('resize', applyFitScale);
+    }
     game = new NS.Game(NS.AI);
     game.onEvent = onGameEvent;
     var stored = loadStoredSettings();
