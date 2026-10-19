@@ -249,11 +249,11 @@
     var ctx = makeGame({ level: 'easy', first: 'computer' });
     ctx.game.newGame();
     var game = ctx.game;
-    // компьютер уже поставил крестик; игрок отвечает ноликом
-    var crosses = game.engine.board.filter(function (c) { return c === 'X'; }).length;
-    T.eq(crosses, 1, 'первый крестик компьютера на поле');
-    game.playerTurn(4);
-    T.eq(game.engine.board[4], 'O', 'ход игрока поставил нолик');
+    // компьютер уже поставил крестик; игрок отвечает ноликом.
+    // Клетка — первая пустая: лёгкий ИИ ходит случайно и мог занять центр
+    var cell = game.engine.board.indexOf(null);
+    game.playerTurn(cell);
+    T.eq(game.engine.board[cell], 'O', 'ход игрока поставил нолик');
     T.eq(game.engine.board.filter(function (c) { return c === 'O'; }).length, 1,
       'нолик игрока один');
   });
