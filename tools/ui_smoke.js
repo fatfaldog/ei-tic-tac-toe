@@ -284,15 +284,24 @@ assert($('settings-frame').classList.contains('easy'), 'фон рамки: кр�
 assert($('set-val-level').innerHTML === 'Легкий' &&
   $('set-val-first').innerHTML === 'Я' &&
   $('set-val-show-digits').innerHTML === 'Да' &&
+  $('set-val-animate').innerHTML === 'Вкл' &&
   $('set-val-layout').innerHTML === 'Нативный', 'строки показывают текущие значения');
 // группы «Геймплей» и «Управление с клавиатуры»: заголовки в разметке и неинтерактивны
 // (стаб DOM их не касается — проверяем исходный HTML, как для «Об авторе»)
 const settingsMarkup = fs.readFileSync(path.join(ROOT, 'web/index.html'), 'utf8');
 assert(settingsMarkup.includes('id="set-group-game"') &&
   settingsMarkup.includes('Геймплей') &&
+  settingsMarkup.includes('id="set-group-graphics"') &&
+  settingsMarkup.includes('Графика') &&
   settingsMarkup.includes('id="set-group-kbd"') &&
-  settingsMarkup.includes('Управление с клавиатуры'),
-  'разметка: заголовки групп «Геймплей» и «Управление с клавиатуры»');
+  settingsMarkup.includes('Управление'),
+  'разметка: три группы — «Геймплей», «Графика», «Управление» (settings-graphics-group)');
+assert(!settingsMarkup.includes('Управление с клавиатуры') &&
+  settingsMarkup.includes('id="set-row-animate"') &&
+  settingsMarkup.indexOf('id="set-row-animate"') < settingsMarkup.indexOf('id="set-group-kbd"'),
+  'разметка: «Анимация» в группе «Графика», до «Управления»');
+assert(/settings-frame[^{]*{[^}]*overflow-y:\s*auto/s.test(gameCss),
+  'разметка: рамка настроек прокручивается (overflow-y)');
 assert($('set-group-game').getAttribute('tabindex') === null &&
   $('set-group-kbd').getAttribute('tabindex') === null,
   'заголовки групп не табулируемы (стрелки/Tab их пропускают)');
@@ -361,8 +370,9 @@ const savedJson = windowStub.localStorage.getItem('krestiki.settings');
 assert(savedJson !== null, 'хранение: OK записал настройки в localStorage');
 const saved = JSON.parse(savedJson);
 assert(saved.level === 'hard' && saved.first === 'computer' &&
-  saved.digitLayout === 'numpad' && saved.showDigits === true,
-  'хранение: в localStorage применённые значения (Тяжелый/Комп/Нумпад/Да)');
+  saved.digitLayout === 'numpad' && saved.showDigits === true &&
+  saved.animate === true,
+  'хранение: применённые значения (Тяжелый/Комп/Нумпад/Да/Вкл)');
 const loadedBack = K.UI.loadStoredSettings();
 assert(loadedBack && loadedBack.level === 'hard' && loadedBack.digitLayout === 'numpad',
   'хранение: loadStoredSettings читает сохранённое');
@@ -592,6 +602,27 @@ $('set-row-first').click();
 $('set-ok').click();
 $('mi-new-game').click();
 assert(sb() === 'Статус: Ваш ход. Жду...', 'темп: возврат «Я» первым — «Жду...»');
+
+// «Анимация: Выкл» — знаки без проявления, обмен мгновенный (settings-graphics-group)
+$('mi-settings').click();
+$('set-row-animate').click();           // Вкл -> Выкл
+$('set-ok').click();                    // не геймплейная — партия не рестартует
+windowStub.deferTimers = true;
+clickBoard(3);
+assert(board.children[3].classList.contains('cross') &&
+  !board.children[3].classList.contains('draw-in'),
+  'выкл: знак игрока появляется мгновенно, без draw-in');
+windowStub.flushTimers(); windowStub.flushTimers(); windowStub.flushTimers();
+const offIdx = board.children.findIndex(c => c.classList.contains('nought'));
+assert(offIdx !== -1 && !board.children[offIdx].classList.contains('draw-in') &&
+  sb() === 'Статус: Ваш ход. Жду...',
+  'выкл: ответ компьютера мгновенный и без проявления, статус вернулся');
+windowStub.deferTimers = false;
+$('mi-settings').click();
+$('set-row-animate').click();           // Выкл -> Вкл (умолчание для следующих секций)
+$('set-ok').click();
+$('mi-new-game').click();
+assert(sb() === 'Статус: Ваш ход. Жду...', 'выкл/вкл: возврат к анимации — «Жду...»');
 // восстановить фокус клетки 2, на который опираются следующие секции
 fire(board, 'mouseover', { target: board.children[2] });
 
@@ -635,6 +666,12 @@ key('ArrowDown'); key('ArrowDown');   // -> set-row-show-digits
 assert($('set-row-show-digits').classList.contains('kbd-active'), 'клавиатура: навигация по строкам группы');
 key('Space');                          // CONFIRM циклит Да -> Нет
 assert($('set-val-show-digits').innerHTML === 'Нет', 'клавиатура: Space циклит показ номеров');
+key('ArrowDown');                      // -> set-row-animate
+assert($('set-row-animate').classList.contains('kbd-active'), 'клавиатура: дошла до «Анимации»');
+key('Space');                          // -> Выкл
+assert($('set-val-animate').innerHTML === 'Выкл', 'клавиатура: Space циклит анимацию');
+key('Space');                          // обратно Вкл (Esc-сценарий ниже ждёт умолчания)
+assert($('set-val-animate').innerHTML === 'Вкл', 'клавиатура: повторный Space возвращает Вкл');
 key('ArrowDown');                      // -> set-row-layout
 assert($('set-row-layout').classList.contains('kbd-active'), 'клавиатура: дошла до «Порядка нумерации»');
 key('Space');                          // -> Нумпад
@@ -648,9 +685,11 @@ $('mi-settings').click();
 assert($('set-val-layout').innerHTML === 'Нативный' && $('set-val-level').innerHTML === 'Легкий' &&
   $('set-val-show-digits').innerHTML === 'Да',
   'клавиатура: Esc отбросил изменения');
-// применить «Нумпад» через плиту OK с клавиатуры
-key('ArrowDown'); key('ArrowDown'); key('ArrowDown'); key('Space');  // порядок -> Нумпад
-key('ArrowDown');                                            // -> плита OK (позиция 4)
+// применить «Нумпад» через плиту OK с клавиатуры: вниз до порядка (4),
+// цикл, затем до плиты OK (позиция 5)
+key('ArrowDown'); key('ArrowDown'); key('ArrowDown'); key('ArrowDown');
+key('Space');                                                 // порядок -> Нумпад
+key('ArrowDown');                                             // -> плита OK (позиция 5)
 assert($('set-ok').classList.contains('kbd-active'), 'клавиатура: фокус дошёл до плиты OK');
 key('Enter');
 assert($('settings-modal').hidden, 'клавиатура: Enter на плите OK применяет и закрывает');

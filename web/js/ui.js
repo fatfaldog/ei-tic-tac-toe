@@ -186,6 +186,12 @@
       global.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }
 
+  /** Проявление знаков и паузы темпа включены? Настройка «Анимация»
+   *  плюс системный prefers-reduced-motion (settings-graphics-group). */
+  function animationsEnabled() {
+    return game.settings.animate !== false && !reducedMotion();
+  }
+
   /** «Ход компьютера. Думаю...» — фаза вычисления. Оно уже выполнено
    *  движком мгновенно, поэтому статус стоит один 0мс-тик и в реальности
    *  невидим; окажись выбор хода небыстрым — фаза сама станет заметной.
@@ -209,7 +215,7 @@
         } else {
           renderStatus('wait');
         }
-      }, DRAW_MS);
+      }, animationsEnabled() ? DRAW_MS : 0);
     }, 0);
   }
 
@@ -282,7 +288,7 @@
     } else if (mark === 'O') {
       el.classList.add('nought');
     }
-    if (animate && mark && !reducedMotion()) {
+    if (animate && mark && animationsEnabled()) {
       el.classList.add('draw-in');
       // снятие класса дублируем таймером: transitionend не стреляет
       // при display:none и в reduced-motion (design turn-pacing, п.4)
@@ -314,8 +320,10 @@
       } else {
         visualLock = true;                 // первый ход компьютера — тоже темп
         pendingComputer = { index: data.index };
-        // в обмене — после дорисовки знака игрока; первым ходом — сразу
-        addTimer(showComputerMove, playerJustMoved ? DRAW_MS : 0);
+        // в обмене — после дорисовки знака игрока (при выключенной анимации
+        // паузы нет — обмен мгновенный); первым ходом — сразу
+        addTimer(showComputerMove,
+          (playerJustMoved && animationsEnabled()) ? DRAW_MS : 0);
         playerJustMoved = false;
       }
     } else if (event === 'gameover') {
@@ -446,20 +454,22 @@
   /* Диалог-список с черновиком (change redesign-settings-window):
    * открытие копирует настройки; циклы меняют черновик (и фон-существо рамки —
    * живое превью); плита галочки применяет, крестик/Esc/B отбрасывают. */
-  var SETTING_KEYS = ['level', 'first', 'showDigits', 'digitLayout'];
+  var SETTING_KEYS = ['level', 'first', 'showDigits', 'animate', 'digitLayout'];
   var SETTING_LABELS = {
     level: { easy: 'Легкий', hard: 'Тяжелый' },
     first: { player: 'Я', computer: 'Комп' },
     showDigits: { true: 'Да', false: 'Нет' },
+    animate: { true: 'Вкл', false: 'Выкл' },
     digitLayout: { reading: 'Нативный', numpad: 'Нумпад' }
   };
   var SETTING_VALUE_IDS = {
     level: 'set-val-level',
     first: 'set-val-first',
     showDigits: 'set-val-show-digits',
+    animate: 'set-val-animate',
     digitLayout: 'set-val-layout'
   };
-  var SETTING_ROW_IDS = ['set-row-level', 'set-row-first', 'set-row-show-digits', 'set-row-layout'];
+  var SETTING_ROW_IDS = ['set-row-level', 'set-row-first', 'set-row-show-digits', 'set-row-animate', 'set-row-layout'];
   var settingsDraft = null;
   var settingsPos = 0;   // 0..2 — строки, 3 — плита OK, 4 — плита X
 
@@ -476,12 +486,18 @@
     frame.classList.add(settingsDraft.level === 'hard' ? 'hard' : 'easy');
     for (var r = 0; r < SETTING_ROW_IDS.length; r++) {
       $(SETTING_ROW_IDS[r]).classList.remove('kbd-active');
-      if (settingsPos === r) { $(SETTING_ROW_IDS[r]).classList.add('kbd-active'); }
+      if (settingsPos === r) {
+        $(SETTING_ROW_IDS[r]).classList.add('kbd-active');
+        var rowEl = $(SETTING_ROW_IDS[r]);
+        if (typeof rowEl.scrollIntoView === 'function') {
+          rowEl.scrollIntoView({ block: 'nearest' }); // скролл рамки (settings-graphics-group)
+        }
+      }
     }
     $('set-ok').classList.remove('kbd-active');
     $('set-cancel').classList.remove('kbd-active');
-    if (settingsPos === 4) { $('set-ok').classList.add('kbd-active'); }
-    if (settingsPos === 5) { $('set-cancel').classList.add('kbd-active'); }
+    if (settingsPos === 5) { $('set-ok').classList.add('kbd-active'); }
+    if (settingsPos === 6) { $('set-cancel').classList.add('kbd-active'); }
   }
 
   function cycleSetting(key) {
@@ -492,6 +508,7 @@
     if (key === 'level') { d.level = d.level === 'easy' ? 'hard' : 'easy'; }
     if (key === 'first') { d.first = d.first === 'player' ? 'computer' : 'player'; }
     if (key === 'showDigits') { d.showDigits = !d.showDigits; }
+    if (key === 'animate') { d.animate = !d.animate; }
     if (key === 'digitLayout') {
       d.digitLayout = d.digitLayout === 'reading' ? 'numpad' : 'reading';
     }
@@ -511,6 +528,7 @@
       level: game.settings.level,
       first: game.settings.first,
       showDigits: game.settings.showDigits,
+      animate: game.settings.animate,
       digitLayout: game.settings.digitLayout
     };
     settingsPos = 0;
@@ -555,7 +573,8 @@
         level: settings.level,
         first: settings.first,
         digitLayout: settings.digitLayout,
-        showDigits: settings.showDigits
+        showDigits: settings.showDigits,
+        animate: settings.animate
       }));
     } catch (e) {
       /* недоступно — молча: настройки действуют в пределах сессии */
@@ -589,10 +608,10 @@
       });
     });
     $('set-ok').addEventListener('focus', function () {
-      if (settingsDraft) { settingsPos = 4; renderSettings(); }
+      if (settingsDraft) { settingsPos = 5; renderSettings(); }
     });
     $('set-cancel').addEventListener('focus', function () {
-      if (settingsDraft) { settingsPos = 5; renderSettings(); }
+      if (settingsDraft) { settingsPos = 6; renderSettings(); }
     });
     SETTING_ROW_IDS.forEach(function (rowId, i) {
       $(rowId).addEventListener('click', function () {
@@ -666,12 +685,12 @@
       case 'settings':
         if (action === 'UP' && settingsPos > 0) {
           settingsPos--; renderSettings();
-        } else if (action === 'DOWN' && settingsPos < 5) {
+        } else if (action === 'DOWN' && settingsPos < 6) {
           settingsPos++; renderSettings();
         } else if (action === 'CONFIRM') {
-          if (settingsPos < 4) {
+          if (settingsPos < 5) {
             cycleSetting(SETTING_KEYS[settingsPos]);
-          } else if (settingsPos === 4) {
+          } else if (settingsPos === 5) {
             applySettingsOk();
           } else {
             closeSettings();

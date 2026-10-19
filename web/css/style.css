@@ -422,19 +422,34 @@ html, body {
   user-select: none;
 }
 
-/* заголовки групп «Геймплей» и «Управление с клавиатуры» (cell-number-hints):
+/* заголовки групп «Геймплей»/«Графика»/«Управление» (settings-graphics-group):
  * неинтерактивные — без подсветки, вне Tab и стрелочной навигации;
- * подложка чуть темнее строк настроек (правка приёмки) */
+ * подложка чуть темнее строк настроих; при прокрутке рамки прилипают к верху
+ * (фон непрозрачный — как рамка) */
 .settings-group-title {
-  margin: 6px 8px 4px;   /* до второго заголовка — компактнее (правка приёмки) */
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 6px 8px 4px;
   padding: 5px 8px;
-  background: rgba(5, 4, 2, .65);
+  background: #0a0804;
   color: #9a8f6b;
   font-size: 10px;
   letter-spacing: 2px;
   text-transform: uppercase;
   text-shadow: 0 1px 2px #000;
   user-select: none;
+}
+
+/* список длиннее рамки — прокрутка внутри (settings-graphics-group) */
+.settings-frame { overflow-y: auto; }
+
+/* скроллбар в стиле ПЗ: узкий, тёплая фаска */
+.settings-frame::-webkit-scrollbar { width: 8px; }
+.settings-frame::-webkit-scrollbar-track { background: transparent; }
+.settings-frame::-webkit-scrollbar-thumb {
+  background: #57492a;
+  border-radius: 4px;
 }
 
 .settings-group-title:first-child { margin-top: 2px; }

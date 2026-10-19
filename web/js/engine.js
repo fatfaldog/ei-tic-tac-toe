@@ -102,8 +102,9 @@
   function Game(ai, settings) {
     this.ai = ai;
     // умолчания при первом запуске; digitLayout — раскладка клавиш 1-9 (game-input),
-    // showDigits — показ номеров клеток на поле (cell-number-hints)
-    this.settings = { level: 'easy', first: 'player', digitLayout: 'reading', showDigits: true };
+    // showDigits — показ номеров клеток на поле (cell-number-hints),
+    // animate — проявление знаков и темп (settings-graphics-group)
+    this.settings = { level: 'easy', first: 'player', digitLayout: 'reading', showDigits: true, animate: true };
     if (settings) {
       this.applySettings(settings);
     }
@@ -124,6 +125,9 @@
       }
       if (typeof settings.showDigits === 'boolean') {
         this.settings.showDigits = settings.showDigits;
+      }
+      if (typeof settings.animate === 'boolean') {
+        this.settings.animate = settings.animate;
       }
     }
   };
