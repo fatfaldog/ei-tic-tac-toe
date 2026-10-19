@@ -21,8 +21,8 @@
 
 ## 5. Переоформление окна результата (правка приёмки)
 
-- [ ] 5.1 Создать `tools/make_plate.py` (универсальный «нож» серии: обрезка к главному Y-сегменту, альфа по «теплу», 720px) и вырезать `web/assets/img/plate-result.png` из `references/result.png`
-- [ ] 5.2 В `web/index.html` переоформить оверлей результата окном в стиле диалогов: `.modal.result` с плитой-заголовком «Результат» (`.result-title`), рамкой `.result-frame` с текстом исхода и плитой «Новая игра» внизу
-- [ ] 5.3 В `web/css/style.css`: стили `.modal.result`/`.result-title`/`.result-frame` (паттерны `.modal.settings`/`.about-title`/`.settings-frame`); для `#result-new-game` ховер/фокус — только золотистый ореол без `brightness`
-- [ ] 5.4 Обновить смоук: структура окна результата, ассет `plate-result.png`; прогнать тесты
-- [ ] 5.5 Коммит, пуш, деплой, визуальная приёмка пользователя
+- [x] 5.1 Создать `tools/make_plate.py` (универсальный «нож» серии: обрезка к главному Y-сегменту, альфа по «теплу», 720px) и вырезать `web/assets/img/plate-result.png` из `references/result.png`
+- [x] 5.2 В `web/index.html` переоформить оверлей результата окном в стиле диалогов: `.modal.result` с плитой-заголовком «Результат» (`.result-title`), рамкой `.result-frame` с текстом исхода и плитой «Новая игра» внизу
+- [x] 5.3 В `web/css/style.css`: стили `.modal.result`/`.result-title`/`.result-frame` (паттерны `.modal.settings`/`.about-title`/`.settings-frame`); для `#result-new-game` ховер/фокус — только золотистый ореол без `brightness`
+- [x] 5.4 Обновить смоук: структура окна результата, ассет `plate-result.png`; прогнать тесты
+- [x] 5.5 Коммит, пуш, деплой, визуальная приёмка пользователя
