@@ -125,6 +125,17 @@
 
   /* ------------------------------------------------------------ поле */
 
+  /** Номера клеток — подсказка клавиш 1–9 (cell-number-hints): цифра каждой
+   *  клетки = клавиша, выбирающая её при действующем порядке нумерации;
+   *  класс digits-on на #board включает отрисовку цифр через CSS. */
+  function renderDigits() {
+    $('board').classList.toggle('digits-on', !!game.settings.showDigits);
+    for (var i = 0; i < cellEls.length; i++) {
+      cellEls[i].setAttribute('data-digit',
+        NS.Input.digitForCell(i, game.settings.digitLayout));
+    }
+  }
+
   function buildBoard() {
     var board = $('board');
     board.innerHTML = '';
@@ -142,6 +153,7 @@
       board.appendChild(btn);
       cellEls.push(btn);
     }
+    renderDigits();
     board.addEventListener('click', function (e) {
       var t = e.target.closest ? e.target.closest('.cell') : null;
       if (!t) {
@@ -299,14 +311,20 @@
   /* Диалог-список с черновиком (change redesign-settings-window):
    * открытие копирует настройки; циклы меняют черновик (и фон-существо рамки —
    * живое превью); плита галочки применяет, крестик/Esc/B отбрасывают. */
-  var SETTING_KEYS = ['level', 'first', 'digitLayout'];
+  var SETTING_KEYS = ['level', 'first', 'showDigits', 'digitLayout'];
   var SETTING_LABELS = {
     level: { easy: 'Легкий', hard: 'Тяжелый' },
     first: { player: 'Я', computer: 'Комп' },
-    digitLayout: { reading: 'Читающая', numpad: 'Нумпад' }
+    showDigits: { true: 'Да', false: 'Нет' },
+    digitLayout: { reading: 'Нативный', numpad: 'Нумпад' }
   };
-  var SETTING_VALUE_IDS = { level: 'set-val-level', first: 'set-val-first', digitLayout: 'set-val-layout' };
-  var SETTING_ROW_IDS = ['set-row-level', 'set-row-first', 'set-row-layout'];
+  var SETTING_VALUE_IDS = {
+    level: 'set-val-level',
+    first: 'set-val-first',
+    showDigits: 'set-val-show-digits',
+    digitLayout: 'set-val-layout'
+  };
+  var SETTING_ROW_IDS = ['set-row-level', 'set-row-first', 'set-row-show-digits', 'set-row-layout'];
   var settingsDraft = null;
   var settingsPos = 0;   // 0..2 — строки, 3 — плита OK, 4 — плита X
 
@@ -327,8 +345,8 @@
     }
     $('set-ok').classList.remove('kbd-active');
     $('set-cancel').classList.remove('kbd-active');
-    if (settingsPos === 3) { $('set-ok').classList.add('kbd-active'); }
-    if (settingsPos === 4) { $('set-cancel').classList.add('kbd-active'); }
+    if (settingsPos === 4) { $('set-ok').classList.add('kbd-active'); }
+    if (settingsPos === 5) { $('set-cancel').classList.add('kbd-active'); }
   }
 
   function cycleSetting(key) {
@@ -338,6 +356,7 @@
     var d = settingsDraft;
     if (key === 'level') { d.level = d.level === 'easy' ? 'hard' : 'easy'; }
     if (key === 'first') { d.first = d.first === 'player' ? 'computer' : 'player'; }
+    if (key === 'showDigits') { d.showDigits = !d.showDigits; }
     if (key === 'digitLayout') {
       d.digitLayout = d.digitLayout === 'reading' ? 'numpad' : 'reading';
     }
@@ -356,6 +375,7 @@
     settingsDraft = {
       level: game.settings.level,
       first: game.settings.first,
+      showDigits: game.settings.showDigits,
       digitLayout: game.settings.digitLayout
     };
     settingsPos = 0;
@@ -384,6 +404,7 @@
     var gameplayChanged = settingsDraft.level !== game.settings.level ||
       settingsDraft.first !== game.settings.first;
     game.applySettings(settingsDraft); // раскладка действует немедленно
+    renderDigits();                    // и номера клеток — тоже (cell-number-hints)
     closeSettings();
     if (gameplayChanged) {
       newGame(); // геймплейные настройки — сразу новой партией (design D1)
@@ -402,10 +423,10 @@
       });
     });
     $('set-ok').addEventListener('focus', function () {
-      if (settingsDraft) { settingsPos = 3; renderSettings(); }
+      if (settingsDraft) { settingsPos = 4; renderSettings(); }
     });
     $('set-cancel').addEventListener('focus', function () {
-      if (settingsDraft) { settingsPos = 4; renderSettings(); }
+      if (settingsDraft) { settingsPos = 5; renderSettings(); }
     });
     SETTING_ROW_IDS.forEach(function (rowId, i) {
       $(rowId).addEventListener('click', function () {
@@ -479,12 +500,12 @@
       case 'settings':
         if (action === 'UP' && settingsPos > 0) {
           settingsPos--; renderSettings();
-        } else if (action === 'DOWN' && settingsPos < 4) {
+        } else if (action === 'DOWN' && settingsPos < 5) {
           settingsPos++; renderSettings();
         } else if (action === 'CONFIRM') {
-          if (settingsPos < 3) {
+          if (settingsPos < 4) {
             cycleSetting(SETTING_KEYS[settingsPos]);
-          } else if (settingsPos === 3) {
+          } else if (settingsPos === 4) {
             applySettingsOk();
           } else {
             closeSettings();

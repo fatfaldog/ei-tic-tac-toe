@@ -180,6 +180,23 @@ html, body {
   opacity: .45;
 }
 
+/* Номера клеток — подсказка клавиш 1–9 при включённой настройке
+ * «Отображать номера клеток» (cell-number-hints): мелкая светло-коричневая
+ * цифра в нижнем левом углу; не перехватывает мышь и не мешает знаку/призраку */
+#board.digits-on .cell::before {
+  content: attr(data-digit);
+  position: absolute;
+  left: 6px;
+  bottom: 4px;
+  font-family: Tahoma, "MS Sans Serif", Geneva, Verdana, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: #c8a874;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .85);
+  pointer-events: none;
+}
+
 /* клавиатурная подсветка пунктов меню и вариантов настроек */
 /* клавиатурная подсветка пунктов меню, строк настроек и плиток */
 .dd-item.kbd-active, .menu-item.kbd-active {
@@ -306,6 +323,18 @@ html, body {
 }
 
 .settings-row:first-child { margin-top: 10px; }
+
+/* заголовок группы «Управление с клавиатуры» (cell-number-hints):
+ * неинтерактивный — без подсветки, вне Tab и стрелочной навигации */
+.settings-group-title {
+  margin: 12px 8px 4px;
+  color: #9a8f6b;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px #000;
+  user-select: none;
+}
 
 .set-name { flex: 1; }
 .set-value { color: #ffe9a8; text-shadow: 0 1px 2px #000; }

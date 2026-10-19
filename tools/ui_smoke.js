@@ -27,6 +27,11 @@ function makeEl(tag) {
       _s: new Set(),
       add(...cs) { cs.forEach(c => el.classList._s.add(c)); },
       remove(...cs) { cs.forEach(c => el.classList._s.delete(c)); },
+      toggle(c, force) {
+        const on = force === undefined ? !el.classList._s.has(c) : !!force;
+        if (on) { el.classList._s.add(c); } else { el.classList._s.delete(c); }
+        return on;
+      },
       contains(c) { return el.classList._s.has(c); }
     },
     setAttribute(k, v) { el._attrs[k] = String(v); },
@@ -187,7 +192,21 @@ assert(!$('settings-modal').hidden, 'окно «Настройки» откры�
 assert($('settings-frame').classList.contains('easy'), 'фон рамки: кролик при «Легком»');
 assert($('set-val-level').innerHTML === 'Легкий' &&
   $('set-val-first').innerHTML === 'Я' &&
-  $('set-val-layout').innerHTML === 'Читающая', 'строки показывают текущие значения');
+  $('set-val-show-digits').innerHTML === 'Да' &&
+  $('set-val-layout').innerHTML === 'Нативный', 'строки показывают текущие значения');
+// группа «Управление с клавиатуры»: заголовок есть в разметке и неинтерактивен
+// (стаб DOM его не касаются — проверяем исходный HTML, как для «Об авторе»)
+const settingsMarkup = fs.readFileSync(path.join(ROOT, 'web/index.html'), 'utf8');
+assert(settingsMarkup.includes('id="set-group-kbd"') &&
+  settingsMarkup.includes('Управление с клавиатуры'),
+  'разметка: заголовок группы «Управление с клавиатуры»');
+assert($('set-group-kbd').getAttribute('tabindex') === null,
+  'заголовок группы не табулируем (стрелки/Tab его пропускают)');
+// номера клеток включены по умолчанию: нативный порядок 1..9 (cell-number-hints)
+assert(board.classList.contains('digits-on'), 'номера клеток включены по умолчанию');
+assert(board.children[0].getAttribute('data-digit') === '1' &&
+  board.children[8].getAttribute('data-digit') === '9',
+  'нативный порядок: клетка 0 -> «1», клетка 8 -> «9»');
 
 // клик по строке уровня: цикл + живое превью тролля
 $('set-row-level').click();
@@ -207,6 +226,10 @@ $('set-row-first').click();            // -> Комп
 $('set-row-layout').click();           // -> Нумпад
 $('set-ok').click();
 assert($('settings-modal').hidden, 'галочка закрывает окно');
+// нумпад применился и к номерам клеток немедленно (cell-number-hints)
+assert(board.children[0].getAttribute('data-digit') === '7' &&
+  board.children[8].getAttribute('data-digit') === '3',
+  'нумпад: номера обновились немедленно (клетка 0 -> «7», клетка 8 -> «3»)');
 // геймплейные настройки перезапускают партию немедленно (settings-apply-restarts-game):
 // поле уже чистое, «Комп» первым сходил крестиком — без ручной «Новой игры»
 const noughtsAfter = board.children.filter(c => c.classList.contains('nought')).length;
@@ -250,6 +273,22 @@ $('set-row-layout').click();           // -> Читающая
 $('set-ok').click();
 assert(board.children.filter(c => c.classList.contains('cross') || c.classList.contains('nought')).length === 2,
   'возврат раскладки тоже не перезапустил партию');
+
+// «Отображать номера клеток»: Нет скрывает цифры немедленно, Да — возвращает;
+// партия при этом не перезапускается (cell-number-hints)
+$('mi-settings').click();
+$('set-row-show-digits').click();        // Да -> Нет
+assert($('set-val-show-digits').innerHTML === 'Нет', 'цикл показа номеров: Да -> Нет');
+$('set-ok').click();
+assert(!board.classList.contains('digits-on'), '«Нет»: цифры скрыты немедленно');
+assert(board.children.filter(c => c.classList.contains('cross') || c.classList.contains('nought')).length === 2,
+  'смена показа номеров не перезапустила партию');
+$('mi-settings').click();
+$('set-row-show-digits').click();        // Нет -> Да
+$('set-ok').click();
+assert(board.classList.contains('digits-on') &&
+  board.children[0].getAttribute('data-digit') === '1',
+  '«Да»: номера вернулись (нативный порядок)');
 $('mi-about').click();
 assert(!$('about-modal').hidden, 'окно «Об авторе» открывается');
 // текст «Об авторе» — современная редакция в разметке (redesign-about-window):
@@ -327,25 +366,32 @@ assert(viewOf(2) === 'focused+dim', 'фокус: при открытом окн�
 key('Enter');
 assert($('set-val-level').innerHTML === 'Тяжелый' && $('settings-frame').classList.contains('hard'),
   'клавиатура: Enter циклит уровень, превью — тролль');
-// вниз до строки раскладки, цикл на «Нумпад»
-key('ArrowDown'); key('ArrowDown');   // -> set-row-layout
-assert($('set-row-layout').classList.contains('kbd-active'), 'клавиатура: навигация по строкам');
-key('Space');                          // CONFIRM циклит
-assert($('set-val-layout').innerHTML === 'Нумпад', 'клавиатура: Space циклит раскладку');
+// вниз до группы «Управление с клавиатуры»: показ номеров, затем порядок
+key('ArrowDown'); key('ArrowDown');   // -> set-row-show-digits
+assert($('set-row-show-digits').classList.contains('kbd-active'), 'клавиатура: навигация по строкам группы');
+key('Space');                          // CONFIRM циклит Да -> Нет
+assert($('set-val-show-digits').innerHTML === 'Нет', 'клавиатура: Space циклит показ номеров');
+key('ArrowDown');                      // -> set-row-layout
+assert($('set-row-layout').classList.contains('kbd-active'), 'клавиатура: дошла до «Порядка нумерации»');
+key('Space');                          // -> Нумпад
+assert($('set-val-layout').innerHTML === 'Нумпад', 'клавиатура: Space циклит порядок нумерации');
 // Esc — отмена: черновик отброшен
 key('Escape');
 assert($('settings-modal').hidden, 'клавиатура: Esc закрывает настройки');
 assert($('game-window').getAttribute('inert') === null,
   'модальность: Esc закрыл настройки — inert снят');
 $('mi-settings').click();
-assert($('set-val-layout').innerHTML === 'Читающая' && $('set-val-level').innerHTML === 'Легкий',
+assert($('set-val-layout').innerHTML === 'Нативный' && $('set-val-level').innerHTML === 'Легкий' &&
+  $('set-val-show-digits').innerHTML === 'Да',
   'клавиатура: Esc отбросил изменения');
 // применить «Нумпад» через плиту OK с клавиатуры
-key('ArrowDown'); key('ArrowDown'); key('Space');            // цикл раскладки -> Нумпад
-key('ArrowDown');                                            // -> плита OK (позиция 3)
+key('ArrowDown'); key('ArrowDown'); key('ArrowDown'); key('Space');  // порядок -> Нумпад
+key('ArrowDown');                                            // -> плита OK (позиция 4)
 assert($('set-ok').classList.contains('kbd-active'), 'клавиатура: фокус дошёл до плиты OK');
 key('Enter');
 assert($('settings-modal').hidden, 'клавиатура: Enter на плите OK применяет и закрывает');
+assert(board.children[0].getAttribute('data-digit') === '7',
+  'клавиатура: OK применил «Нумпад» — номера обновились немедленно');
 assert($('game-window').getAttribute('inert') === null,
   'модальность: OK закрыл настройки — inert снят');
 

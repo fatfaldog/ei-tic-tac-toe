@@ -48,6 +48,15 @@
     return map[digit] !== undefined ? map[digit] : null;
   }
 
+  /** Обратный индекс раскладки: клетка -> клавиша 1-9 (номера клеток, cell-number-hints). */
+  function digitForCell(cell, layout) {
+    var map = DIGIT_MAPS[layout] || DIGIT_MAPS.reading;
+    for (var d in map) {
+      if (map[d] === cell) { return d; }
+    }
+    return null;
+  }
+
   /* ------------------------------------------------------------ геймпад */
 
   var DEADZONE = 0.5;
@@ -182,6 +191,7 @@
   NS.Input = {
     keyAction: keyAction,
     digitCell: digitCell,
+    digitForCell: digitForCell,
     gamepadEdges: gamepadEdges,
     readGamepad: readGamepad,
     attach: attach

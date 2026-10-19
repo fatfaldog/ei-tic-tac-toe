@@ -94,14 +94,16 @@
   /* ------------------------------------------------------------------ *
    * Оркестратор партии: настройки по умолчанию (specs/computer-opponent),
    * применение их к новой партии, автоматический ход компьютера.
-   * settings: { level: 'easy'|'hard', first: 'player'|'computer' }
+   * settings: { level: 'easy'|'hard', first: 'player'|'computer',
+   *   digitLayout: 'reading'|'numpad', showDigits: boolean }
    * ai: объект с методом pickMove(level, board, marks) — внедряется (ai.js);
    * marks = { my: знак компьютера, opp: знак игрока }.
    */
   function Game(ai, settings) {
     this.ai = ai;
-    // умолчания при первом запуске; digitLayout — раскладка клавиш 1-9 (game-input)
-    this.settings = { level: 'easy', first: 'player', digitLayout: 'reading' };
+    // умолчания при первом запуске; digitLayout — раскладка клавиш 1-9 (game-input),
+    // showDigits — показ номеров клеток на поле (cell-number-hints)
+    this.settings = { level: 'easy', first: 'player', digitLayout: 'reading', showDigits: true };
     if (settings) {
       this.applySettings(settings);
     }
@@ -119,6 +121,9 @@
       }
       if (settings.digitLayout === 'reading' || settings.digitLayout === 'numpad') {
         this.settings.digitLayout = settings.digitLayout;
+      }
+      if (typeof settings.showDigits === 'boolean') {
+        this.settings.showDigits = settings.showDigits;
       }
     }
   };

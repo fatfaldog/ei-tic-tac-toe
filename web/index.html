@@ -64,9 +64,16 @@
           <span class="set-name">Кто ходит первым</span>
           <span class="set-value" id="set-val-first">Я</span>
         </div>
+        <!-- группа «Управление с клавиатуры» (cell-number-hints): заголовок
+             неинтерактивен — стрелки/Tab его пропускают -->
+        <div class="settings-group-title" id="set-group-kbd">Управление с клавиатуры</div>
+        <div class="settings-row" id="set-row-show-digits" tabindex="0" data-row="showDigits">
+          <span class="set-name">Отображать номера клеток</span>
+          <span class="set-value" id="set-val-show-digits">Да</span>
+        </div>
         <div class="settings-row" id="set-row-layout" tabindex="0" data-row="digitLayout">
-          <span class="set-name">Раскладка 1-9</span>
-          <span class="set-value" id="set-val-layout">Читающая</span>
+          <span class="set-name">Порядок нумерации</span>
+          <span class="set-value" id="set-val-layout">Нативный</span>
         </div>
       </div>
 

@@ -173,5 +173,17 @@
     T.eq(e2.current, 'computer', 'при first=computer первым снова компьютер');
     T.eq(e2.computerMark, 'X', 'компьютер снова крестиками');
   });
+
+  // Requirement (game-ui): «Отображать номера клеток» — настройка showDigits
+  T.test('Настройка showDigits: умолчание true, применяется только boolean', function () {
+    var g = new K.Game(null);
+    T.eq(g.settings.showDigits, true, 'по умолчанию номера включены');
+    g.applySettings({ showDigits: false });
+    T.eq(g.settings.showDigits, false, 'false применяется');
+    g.applySettings({ showDigits: 'Нет' });
+    T.eq(g.settings.showDigits, false, 'не-boolean значение отбрасывается');
+    g.applySettings({ showDigits: true });
+    T.eq(g.settings.showDigits, true, 'true применяется обратно');
+  });
 })(typeof window !== 'undefined' ? window.T : globalThis.T,
     typeof window !== 'undefined' ? window.Krestiki : globalThis.Krestiki);
