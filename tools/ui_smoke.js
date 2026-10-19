@@ -179,9 +179,11 @@ assert(gameMarkup.includes('class="modal result"') &&
 assert(gameMarkup.includes('id="result-new-game" class="plate-btn"') &&
   gameMarkup.includes('aria-label="Новая игра"'),
   'оверлей: «Новая игра» — плита (plate-btn) с aria-label');
-assert(fs.existsSync(path.join(ROOT, 'web/assets/img/plate-new-game.png')) &&
-  fs.existsSync(path.join(ROOT, 'web/assets/img/plate-result.png')),
-  'ассеты plate-new-game.png и plate-result.png сгенерированы');
+assert(fs.existsSync(path.join(ROOT, 'web/assets/img/plate-result.png')),
+  'ассет plate-result.png сгенерирован');
+const gameCss = fs.readFileSync(path.join(ROOT, 'web/css/style.css'), 'utf8');
+assert(/#result-new-game\s*\{[^}]*plate-confirm\.png/s.test(gameCss),
+  'плита-галочка: result-new-game использует plate-confirm.png (правка приёмки)');
 // тексты исходов — дословно оригинальные (change restore-original-result-texts)
 assert(K.UI.RESULT_TEXTS.playerWon === 'Вы выиграли. ПоЗдравляю!!!!!',
   'текст победы игрока дословный (ПоЗдравляю с ПЗ)');

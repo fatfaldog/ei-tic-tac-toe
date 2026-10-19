@@ -250,22 +250,11 @@ html, body {
 
 .stone-btn:hover { background: #3a3220; color: #ffe9a8; }
 
-/* плита «Новая игра» в окне результата (new-game-plate): срез из той же
- * серии, что плита «Об авторе»; класс plate-btn даёт тень, свечение
- * hover/фокуса и скрытие текста — здесь только размер и фон */
+/* плита-галочка в окне результата (правка приёмки): та же, что OK в
+ * «Настройках»/«Об авторе»; размер и ховер — стандартные из .plate-btn */
 #result-new-game {
-  width: 340px;
-  height: 53px;   /* пропорции плиты 2170x337 */
-  margin-top: 16px;
-  background-image: url("../assets/img/plate-new-game.png");
-}
-
-/* подсветка плиты «Новая игра» — только золотистый ореол, без brightness:
- * на большой плите вспышка яркости избыточна (правка приёмки) */
-#result-new-game:hover,
-#result-new-game.kbd-active,
-#result-new-game:focus {
-  filter: drop-shadow(0 0 6px rgba(201, 187, 146, .8));
+  margin-top: 14px;
+  background-image: url("../assets/img/plate-confirm.png");
 }
 
 /* Окно результата: структурно как «Настройки»/«Об авторе» (правка приёмки) —
@@ -301,6 +290,7 @@ html, body {
   background: #0a0804;
   box-shadow: inset 0 0 14px rgba(0, 0, 0, .7);
   padding: 20px 12px;
+  text-align: center;   /* текст исхода — по центру (правка приёмки) */
 }
 
 .result-frame .panel-text { margin-bottom: 0; }
