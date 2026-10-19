@@ -403,6 +403,11 @@ html, body {
 .about-col { display: flex; flex-direction: column; gap: 12px; }
 .about-col-right { text-align: right; }
 
+.about-group {
+  padding: 6px 12px;
+  background: rgba(10, 8, 4, .5);
+}
+
 .about-role {
   color: #9a8f6b;
   font-size: 10px;
@@ -420,6 +425,17 @@ html, body {
 }
 
 .about-name .about-link { white-space: nowrap; }
+
+/* родная браузерная рамка фокуса (Tab) на плитках — гасим: наша подсветка
+ * фокуса/hover единообразна (правка приёмки) */
+.plate-btn:focus,
+.stone-btn:focus,
+.dd-item:focus {
+  outline: none;
+}
+.plate-btn:focus {
+  filter: drop-shadow(0 0 6px rgba(201, 187, 146, .8)) brightness(1.12);
+}
 
 .about-sep { display: none; }
 
